@@ -1,9 +1,10 @@
 #include "./includes/Memory.hpp"
 
+namespace Engine{
 //******************************************************************************************************************************************************* */
 template<typename... Components>
 Memory<Components...>::Memory(std::size_t n)
-    : pools() { setSize(n); }
+    : pools() { reserve(n); }
 
 template<typename... Components>
 Memory<Components...>::~Memory(){}                                
@@ -25,7 +26,7 @@ Memory<Components...>& Memory<Components...>::operator=(Memory<Components...>&& 
 
 
 template<typename... Components>
-void Memory<Components...>::setSize(std::size_t n) {
+constexpr void Memory<Components...>::reserve(std::size_t n) {
     (getPool<Components>().reserve(n),...);
 }
 
@@ -43,24 +44,30 @@ inline void Memory<Components...>::emplace(Args&&... args) {
 
 template<typename... Components>
 template<typename T>
-inline auto Memory<Components...>::begin() -> typename std::vector<T>::iterator{
+inline auto Memory<Components...>::begin() {
     return getPool<T>().begin();
 }
 
 template<typename... Components>
 template<typename T>
-inline auto Memory<Components...>::end() -> typename std::vector<T>::iterator{
+inline auto Memory<Components...>::end() {
     return getPool<T>().end();
 }
 
 template<typename... Components>
 template<typename T>
-auto Memory<Components...>::begin() const {
-    return getPool<T>().begin();
-}
+void Memory<Components...>::remove(T& t){}
 
 template<typename... Components>
 template<typename T>
-auto Memory<Components...>::end() const {
-    return getPool<T>().end();
+void Memory<Components...>::removeIf(T& t){}
+
+template<typename... Components>
+template<typename M>
+void Memory<Components...>::forEach(M& t){}
+
+template<typename... Components>
+template<typename T,typename M>
+void Memory<Components...>::forEach(M& t){}
+
 }
