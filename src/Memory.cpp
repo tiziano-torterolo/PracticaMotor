@@ -32,7 +32,7 @@ constexpr void Memory<Components...>::reserve(std::size_t n) {
 
 template<typename... Components>
 template<typename T>
-__forceinline std::vector<T>& Memory<Components...>::getPool() {
+FORCEINLINE std::vector<T>& Memory<Components...>::getPool() {
     return std::get<std::vector<T>>(pools);
 }
 

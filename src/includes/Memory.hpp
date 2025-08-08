@@ -4,7 +4,11 @@
 #include <type_traits>
 
 namespace Engine{
-
+#ifdef _WIN32
+    #define FORCEINLINE __forceinline
+#else
+    #define FORCEINLINE inline __attribute__((always_inline))
+#endif
 
 template<typename... Components>
 class Memory {
@@ -22,7 +26,7 @@ public:
     private:
 
         template<typename T>
-        __forceinline std::vector<T>& getPool() ;
+        FORCEINLINE std::vector<T>& getPool() ;
 
 
     public:
