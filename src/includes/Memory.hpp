@@ -45,14 +45,14 @@ public:
         template<typename T>
         void remove(T& t);
 
-        template<typename T>
-        void removeIf(T& t);
+        template<typename Preadicate>
+        void removeIf(Preadicate& t);
 
-        template<typename M>
-        void forEach(M& t);
+        template<typename Preadicate>
+        void forEach(Preadicate&);
 
-        template<typename T,typename M>
-        void forEach(M& t);
+        template<typename T,typename Preadicate>
+        void forEach(Preadicate&);
 
 
 

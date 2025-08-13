@@ -5,10 +5,16 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
-
+#include <functional>
 
 namespace Engine{
+#ifdef _WIN32
+    #define FORCEINLINE __forceinline
+#else
+    #define FORCEINLINE inline __attribute__((always_inline))
+#endif
 
+    
 template<typename T>
 class SlotMap{
 public:
@@ -44,12 +50,32 @@ public:
 
     inline auto end();
 
-    template<typename M>
-    void removeIf(M& );
+    template<typename Preadicate>
+    void removeIf(Preadicate&& );
 
     void remove(T**);
+    
+    FORCEINLINE void remove(T*);
+    
+    void removeLast(T**);
+    
+    void remove(T**,T**);
+
+    template<typename Preadicate>
+    FORCEINLINE void forEach(Preadicate&&);
 
     void removeByIndex(std::size_t);
+
+private:
+
+    FORCEINLINE T   getLast     ();
+    FORCEINLINE T** getLastRef  ();
+    FORCEINLINE T*  getLastStore();
+
+    FORCEINLINE T** getRefFromStore(T*);
+    
+    FORCEINLINE std::size_t getLastRefIndex  ();
+    FORCEINLINE std::size_t getLastSotreIndex();
 
 };
     

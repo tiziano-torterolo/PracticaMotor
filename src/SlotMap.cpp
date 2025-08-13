@@ -51,60 +51,136 @@ T** SlotMap<T>::create(Args&&... args){
     if(freeIndexStorage==capacity){
         throw std::runtime_error("SlotMapError: No se puede añadir porque SlotMap esta lleno size="+capacity);
     }
-    comps[freeIndexStorage] = T(std::forward<Args>(args)...);
-    refs[freeIndexRefs] = &comps[freeIndexStorage];
+    
     auto temp = &(refs[freeIndexRefs]);
-    freeIndexStorage++;
-    lastAddedRef = freeIndexRefs;
-    freeIndexRefs = nextfree[freeIndexRefs];
+
+    emplace_back(std::forward<Args>(args)...);
+    
     return temp;
 }
 
 template<typename T>
 template< typename... Args>
 inline void SlotMap<T>::emplace_back(Args&&... args){
-
+    comps[freeIndexStorage] = T(std::forward<Args>(args)...);
+    refs[freeIndexRefs] = &comps[freeIndexStorage];    
+    freeIndexStorage++;
+    lastAddedRef = freeIndexRefs;
+    freeIndexRefs = nextfree[freeIndexRefs];
 }
 
 template<typename T>
 inline auto SlotMap<T>::begin(){
-
+    return comps;
 }
 
 template<typename T>
 inline auto SlotMap<T>::end(){
-
+    return comps + freeIndexStorage;
 }
 
 template<typename T>
-template<typename M>
-void SlotMap<T>::removeIf(M& m){
+template<typename Preadicate>
+void SlotMap<T>::removeIf(Preadicate&& pred){
 
+    for (auto it = end(); it != begin()-1;--it ) {
+        if (std::invoke(pred, it)) {
+            remove(it); 
+            // al ir de atrás hacia adelante, no importa si movés el último al hueco
+        }
+    }
 }
 
 template<typename T>
 void SlotMap<T>::remove(T** elementRef){
-    auto element = std::find_if(comps,comps+std::size(comps),true);
-    if(element==comps+std::size(comps)){
-        return;
-    }
-    std::size_t index = std::distance(comps.begin(), element);
-    removeByIndex(index);
+    removeByIndex( elementRef - (refs) );
+}
+
+template<typename T>
+void SlotMap<T>::remove(T* element){
+    remove( getRefFromStore(element) ); // yo se que no es lo mas optimo pero tampoco esta mal
 }
 
 template<typename T>
 void SlotMap<T>::removeByIndex(std::size_t index){
-    std::cout << "Swap"<<lastAddedRef << " <->" << index<< std::endl;
-    std::swap((refs[lastAddedRef]),(refs[index]));
-    std::cout << "Swap"<<(refs[lastAddedRef]) << " <->" << (refs[index])<< std::endl;
-    std::cout << "Swap"<<(*refs[lastAddedRef])<< " <->" << (*refs[index])<< std::endl;
-    std::swap((*refs[lastAddedRef]),(*refs[index]));
+    // Tomar el ultimo valor y cambiarlo con el primer
+    //ir a referencias y switchear los que tengan la referencia de los valores cambiados
+
+    //Casos particulares, remover ultimo, remover no elemento, remover elemento removido
+
+    if (index>freeIndexStorage){
+        return;//aca no se si deberia ser > o >=
+    }
+
+    if (freeIndexStorage<1){
+        return;
+    }
+
+    if(index >= capacity){
+        return;
+    }
+
+    auto LastStore    = getLastStore();
+    auto LastRef      = getLastRef();
+    auto LastRefIndex = getLastRefIndex();
+    if(refs[index]==*LastRef){
+        removeLast(LastRef);
+        return;
+    }
+    
+    std::swap(refs[LastRefIndex],(refs[index]));
+    std::swap(*refs[LastRefIndex],(*refs[index]));
+
+    removeLast(LastRef);
+    
+}
+
+template<typename T>
+void SlotMap<T>::removeLast(T** LastRef){
+    (*LastRef)->~T();
+    std::size_t index = LastRef -refs;
     freeIndexStorage--;
     nextfree[index]=freeIndexRefs;
     freeIndexRefs=index;
-    std::cout <<"free="<<freeIndexRefs << "store="<<freeIndexStorage << " newxfree " << nextfree[index]<< std::endl;
-    
 }
-    
-    
+
+template<typename T>
+FORCEINLINE T   SlotMap<T>::getLast(){
+    return comps[freeIndexStorage-1];
+}
+
+template<typename T>
+FORCEINLINE T*  SlotMap<T>::getLastStore(){
+    return &comps[freeIndexStorage-1];
+}
+
+template<typename T>
+FORCEINLINE T** SlotMap<T>::getLastRef(){
+//    T* comps;
+//    T** refs;
+    return getRefFromStore(getLastStore());
+}
+
+template<typename T>
+FORCEINLINE std::size_t SlotMap<T>::getLastRefIndex  (){
+    return (getLastRef()-(refs)  );
+}
+
+template<typename T>
+FORCEINLINE std::size_t SlotMap<T>::getLastSotreIndex(){
+    return ( getLastStore()-(comps) );
+}
+  
+template<typename T>
+template<typename Predicate>
+FORCEINLINE void SlotMap<T>::forEach(Predicate&& pred){
+    std::for_each(begin(),end(), std::forward<Predicate>(pred));
+}
+
+template<typename T>
+FORCEINLINE T** SlotMap<T>::getRefFromStore(T* store){
+    T** it = std::find_if(refs,(refs + capacity),[store](T* t){return t==store;});
+    return (it != (refs + capacity)) ? it : nullptr;
+}
+
 }

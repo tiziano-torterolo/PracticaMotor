@@ -11,6 +11,8 @@
 #include <memory>
 #include <print>
 
+
+
 int main() {
     // // g++ -o programa src/main.cpp src/Memory.cpp src/PrinteableComponent.cpp
     // Engine::Memory<PrinteableComponent> mem = Engine::Memory<PrinteableComponent>(60000000);
@@ -32,17 +34,12 @@ int main() {
     
     Engine::SlotMap<PrinteableComponent> slotmap = Engine::SlotMap<PrinteableComponent>(10);
     PrinteableComponent*** a = new PrinteableComponent**[10];
-    for (size_t i = 0; i < 10; i++)    {
-        a[i] = slotmap.create('a'+i);
-    }
-    for (size_t i = 0; i < 10; i++)    {
-        std::cout << (*(*a[i])) <<std::endl;
-    }
-    slotmap.removeByIndex(4);
-    slotmap.create('z');
-    for (size_t i = 0; i < 10; i++)    {
-        std::cout << (*(*a[i])) <<std::endl;
-    }
-    delete[] a;
+
+    slotmap.removeByIndex(7);
+    slotmap.removeByIndex(3);
+    slotmap.forEach([]( auto& n) {  std::cout << n ; });
+    slotmap.removeIf([&slotmap]( auto n) {  slotmap.forEach([]( auto& n) {  std::cout << n ; });std::cout << std::endl ; return true ; });
     return 0;
+    //abcdefghij
+    //aicdjfgh
 }
