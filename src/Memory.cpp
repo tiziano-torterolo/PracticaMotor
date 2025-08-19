@@ -3,11 +3,18 @@
 namespace Engine{
 //******************************************************************************************************************************************************* */
 template<typename... Components>
-Memory<Components...>::Memory(std::size_t n)
-    : pools() { reserve(n); }
+Memory<Components...>::Memory(std::size_t n) 
+    :   pools{ SlotMap<Components>(n)... } {
+        entities = new SlotMap<Entity<Components...>>(n);
+        
+}
 
 template<typename... Components>
-Memory<Components...>::~Memory(){}                                
+Memory<Components...>::~Memory(){}   
+
+/*   
+Temporalmente desactivo los construcotres de copia y movimiento porque me da paja hacer los 
+Constructores de copia y movimiento del SlotMap   
 
 template<typename... Components>
 Memory<Components...>::Memory(const Memory& other)
@@ -22,6 +29,8 @@ Memory<Components...>& Memory<Components...>::operator=(const Memory<Components.
 
 template<typename... Components>
 Memory<Components...>& Memory<Components...>::operator=(Memory<Components...>&& other) noexcept{pools = std::move(other.pools);} // Asignación movimiento
+*/
+
 //******************************************************************************************************************************************************* */
 
 
@@ -32,14 +41,23 @@ constexpr void Memory<Components...>::reserve(std::size_t n) {
 
 template<typename... Components>
 template<typename T>
-FORCEINLINE std::vector<T>& Memory<Components...>::getPool() {
-    return std::get<std::vector<T>>(pools);
+FORCEINLINE SlotMap<T>& Memory<Components...>::getPool() {
+    return std::get<SlotMap<T>>(pools);
 }
 
 template<typename... Components>
 template<typename T, typename... Args>
 inline void Memory<Components...>::emplace(Args&&... args) {
-    getPool<T>().emplace_back(std::forward<Args>(args)...);
+    getPool<T>().create(std::forward<Args>(args)...);
+}
+
+template<typename... Components>
+template<typename... Cs, typename... Args>
+auto Memory<Components...>::createEntity(Args&&... args) {
+    // cada componente de Cs se construye con un argumento de Args
+    Entity<Components...>** entityPointer = entities.create();
+    ((*entityPointer)->setComponent( getPool<Cs>().create(std::forward<Args>(args)...)),...);
+
 }
 
 template<typename... Components>
@@ -52,6 +70,16 @@ template<typename... Components>
 template<typename T>
 inline auto Memory<Components...>::end() {
     return getPool<T>().end();
+}
+
+template<typename... Components>
+inline auto Memory<Components...>::begin() {
+    return entities.begin();
+}
+
+template<typename... Components>
+inline auto Memory<Components...>::end() {
+    return entities.end();
 }
 
 template<typename... Components>

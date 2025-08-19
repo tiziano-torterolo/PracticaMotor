@@ -6,6 +6,7 @@ namespace Engine{
 
 template<typename T>
 SlotMap<T>::SlotMap(std::size_t n){
+    std::cout <<"SlotMap: Creando nuevo de tamaño ="<<n<<std::endl;
     comps = new T[n];
     refs = new T*[n];
     nextfree = new std::size_t[n] ;
@@ -60,9 +61,34 @@ T** SlotMap<T>::create(Args&&... args){
 }
 
 template<typename T>
+template<typename Component>
+T** SlotMap<T>::create(Component&& args){
+    
+    if(freeIndexStorage==capacity){
+        throw std::runtime_error("SlotMapError: No se puede añadir porque SlotMap esta lleno size="+capacity);
+    }
+    
+    auto temp = &(refs[freeIndexRefs]);
+
+    push_back(std::forward<Component>(args));
+    
+    return temp;
+}
+
+template<typename T>
 template< typename... Args>
 inline void SlotMap<T>::emplace_back(Args&&... args){
     comps[freeIndexStorage] = T(std::forward<Args>(args)...);
+    refs[freeIndexRefs] = &comps[freeIndexStorage];    
+    freeIndexStorage++;
+    lastAddedRef = freeIndexRefs;
+    freeIndexRefs = nextfree[freeIndexRefs];
+}
+
+template<typename T>
+template<typename Component>
+inline void SlotMap<T>::push_back(Component&& args){
+    comps[freeIndexStorage] = std::forward<Component>(args);
     refs[freeIndexRefs] = &comps[freeIndexStorage];    
     freeIndexStorage++;
     lastAddedRef = freeIndexRefs;
@@ -82,17 +108,20 @@ inline auto SlotMap<T>::end(){
 template<typename T>
 template<typename Preadicate>
 void SlotMap<T>::removeIf(Preadicate&& pred){
-
-    for (auto it = end(); it != begin()-1;--it ) {
+    for (auto it = end()-1; it != begin()-1;--it ) {
         if (std::invoke(pred, it)) {
             remove(it); 
-            // al ir de atrás hacia adelante, no importa si movés el último al hueco
         }
     }
 }
 
 template<typename T>
 void SlotMap<T>::remove(T** elementRef){
+    auto LastInRefsArray = getLastRef();
+    if(*LastInRefsArray == *elementRef){
+        removeLast(elementRef);
+        return;
+    }
     removeByIndex( elementRef - (refs) );
 }
 
@@ -107,43 +136,59 @@ void SlotMap<T>::removeByIndex(std::size_t index){
     //ir a referencias y switchear los que tengan la referencia de los valores cambiados
 
     //Casos particulares, remover ultimo, remover no elemento, remover elemento removido
-
-    if (index>freeIndexStorage){
+    std::cout <<index ;
+    if (index>=freeIndexStorage){
+        throw std::runtime_error("SlotMapError: index>freeIndexStorage");
         return;//aca no se si deberia ser > o >=
     }
 
     if (freeIndexStorage<1){
+        throw std::runtime_error("SlotMapError: freeIndexStorage<1");
         return;
+
     }
 
     if(index >= capacity){
+        throw std::runtime_error("SlotMapError: index >= capacity");
         return;
     }
 
-    auto LastStore    = getLastStore();
-    auto LastRef      = getLastRef();
-    auto LastRefIndex = getLastRefIndex();
-    if(refs[index]==*LastRef){
-        removeLast(LastRef);
+    auto LastInRefsArray = getLastRef();
+    auto IndexOfLastInRefsArray = LastInRefsArray - refs;
+
+    if(LastInRefsArray == nullptr){
+        throw std::runtime_error("SlotMapError: getLastRef() == nullptr");
         return;
     }
-    
-    std::swap(refs[LastRefIndex],(refs[index]));
-    std::swap(*refs[LastRefIndex],(*refs[index]));
+    if(*LastInRefsArray == refs[index]){
+        removeLast(&refs[index]);
+        return;
+    }
 
-    removeLast(LastRef);
     
+    std::swap(*LastInRefsArray,refs[index]);
+    std::swap(*(*LastInRefsArray),*refs[index]);
+
+    freeIndexStorage--;
+
+    auto freeIndexRefsTmp = freeIndexRefs;
+    nextfree[index] = freeIndexRefsTmp;
+    freeIndexRefs = index;
+
 }
+
 
 template<typename T>
 void SlotMap<T>::removeLast(T** LastRef){
     (*LastRef)->~T();
-    std::size_t index = LastRef -refs;
+    std::size_t index = LastRef - refs;
     freeIndexStorage--;
     nextfree[index]=freeIndexRefs;
-    freeIndexRefs=index;
+    freeIndexRefs=index; 
 }
 
+
+/// @return 
 template<typename T>
 FORCEINLINE T   SlotMap<T>::getLast(){
     return comps[freeIndexStorage-1];

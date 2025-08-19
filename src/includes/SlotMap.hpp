@@ -6,13 +6,9 @@
 #include <algorithm>
 #include <iostream>
 #include <functional>
+#include <Macros.hpp>
 
 namespace Engine{
-#ifdef _WIN32
-    #define FORCEINLINE __forceinline
-#else
-    #define FORCEINLINE inline __attribute__((always_inline))
-#endif
 
     
 template<typename T>
@@ -20,7 +16,10 @@ class SlotMap{
 public:
     explicit SlotMap(std::size_t);
     ~SlotMap();
-
+    // SlotMap(const SlotMap& other) = ; // Constructor de copia
+    // SlotMap(SlotMap&& other) noexcept = ; // Constructor de movimiento
+    // SlotMap& operator=(const SlotMap& other) =  ; // Asignación copia
+    // SlotMap& operator=(SlotMap&& other) noexcept = ; // Asignación movimiento
 private:
 
     std::size_t freeIndexStorage;
@@ -40,11 +39,17 @@ public:
     template<typename IteratorBegin,typename IteratorEnd>
     inline void reserve(std::size_t,IteratorBegin,IteratorEnd);
 
-    template< typename... Args>
+    template<typename... Args>
     T** create(Args&&...) ;
 
-    template< typename... Args>
+    template<typename Component>
+    T** create(Component&&) ;
+
+    template<typename... Args>
     inline void emplace_back(Args&&...) ;
+    
+    template<typename Component>
+    inline void push_back(Component&&) ;
 
     inline auto begin();
 
@@ -68,9 +73,10 @@ public:
 
 private:
 
-    FORCEINLINE T   getLast     ();
-    FORCEINLINE T** getLastRef  ();
-    FORCEINLINE T*  getLastStore();
+    FORCEINLINE T   getLast     (); //obtiene una copia del ultimo objeto 
+    FORCEINLINE T** getLastRef  (); // Obtiene el puntero al puntero que apunta al objeto
+                                    // &Ref[x] -> Last*
+    FORCEINLINE T*  getLastStore(); // Obtiene el puntero del ultimo objeto 
 
     FORCEINLINE T** getRefFromStore(T*);
     

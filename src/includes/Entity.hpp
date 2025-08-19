@@ -11,15 +11,21 @@ private:
     /* data */
 
 public:
-    std::tuple<Components&...> pools;
+    std::tuple<Components**...> comps;
     //auto mask;
 
-    explicit Entity();
-    ~Entity();                                // Destructor
-    Entity(const Entity& other); // Constructor de copia
-    Entity(Entity&& other) noexcept; // Constructor de movimiento
-    Entity& operator=(const Entity& other); // Asignación copia
-    Entity& operator=(Entity&& other) noexcept; // Asignación movimiento
+    Entity() = default;
+    ~Entity() = default;                                // Destructor
+    Entity(const Entity& other) = default; // Constructor de copia
+    Entity(Entity&& other) noexcept = default; // Constructor de movimiento
+    Entity& operator=(const Entity& other) = default; // Asignación copia
+    Entity& operator=(Entity&& other) noexcept = default; // Asignación movimiento
+
+public:
+
+    template<typename T>
+    void setComponent(T**);
+
 };
 
 

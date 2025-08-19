@@ -2,36 +2,41 @@
 #include <tuple>
 #include <vector>
 #include <type_traits>
+#include <SlotMap.hpp>
+#include <Macros.hpp>
+#include <Entity.hpp>
 
 namespace Engine{
-#ifdef _WIN32
-    #define FORCEINLINE __forceinline
-#else
-    #define FORCEINLINE inline __attribute__((always_inline))
-#endif
+
 
 template<typename... Components>
 class Memory {
 public:
-    std::tuple<std::vector<Components>...> pools;
+
+    std::tuple<SlotMap<Components>...> pools;
+    SlotMap<Entity<Components...>> entities;
 
     explicit Memory(std::size_t n =1000);
 
     ~Memory();                                // Destructor
-    Memory(const Memory& other); // Constructor de copia
-    Memory(Memory&& other) noexcept; // Constructor de movimiento
-    Memory& operator=(const Memory& other); // Asignación copia
-    Memory& operator=(Memory&& other) noexcept; // Asignación movimiento
+    Memory(const Memory& other) = delete; // Constructor de copia
+    Memory(Memory&& other) noexcept = delete; // Constructor de movimiento
+    Memory& operator=(const Memory& other) = delete ; // Asignación copia
+    Memory& operator=(Memory&& other) noexcept = delete; // Asignación movimiento
    
     private:
 
         template<typename T>
-        FORCEINLINE std::vector<T>& getPool() ;
+        FORCEINLINE SlotMap<T>& getPool() ;
 
 
     public:
 
         constexpr inline void reserve(std::size_t n) ;
+
+        template<typename... Cs, typename... Args>
+        auto createEntity(Args&&... args) ;
+        
 
         template<typename T, typename... Args>
         inline void emplace(Args&&... args) ;
@@ -40,6 +45,10 @@ public:
         inline auto begin();
 
         template<typename T>
+        inline auto end();
+
+        inline auto begin();
+
         inline auto end();
 
         template<typename T>
