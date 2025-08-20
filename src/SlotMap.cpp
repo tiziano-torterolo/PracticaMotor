@@ -88,7 +88,7 @@ inline void SlotMap<T>::emplace_back(Args&&... args){
 template<typename T>
 template<typename Component>
 inline void SlotMap<T>::push_back(Component&& args){
-    comps[freeIndexStorage] = std::move(std::forward<Component>(args)) ;
+    comps[freeIndexStorage] = std::forward<Component>(args) ;
     refs[freeIndexRefs] = &comps[freeIndexStorage];    
     freeIndexStorage++;
     lastAddedRef = freeIndexRefs;
