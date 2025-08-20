@@ -69,20 +69,20 @@ auto Memory<Components...>::createEntity(Args&&... args) {
     // 1) crear la entidad (Entity<Components...>**)
     auto entityPtr = entities.create();
 
-    // 2) emparejar Cs[i] con args[i]
-    auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
-    using CsTuple = std::tuple<Cs...>;
+    // // 2) emparejar Cs[i] con args[i]
+    // auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
+    // using CsTuple = std::tuple<Cs...>;
 
-    [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-        ( 
-            (*entityPtr)->setComponent(
-                // getPool del componente Cs[i]
-                getPool<std::tuple_element_t<Is, CsTuple>>()
-                    // create con el argumento args[i]
-                    .create(std::get<Is>(argsTuple))
-            )
-        , ...);
-    }(std::index_sequence_for<Cs...>{});
+    // [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+    //     ( 
+    //         (*entityPtr)->setComponent(
+    //             // getPool del componente Cs[i]
+    //             getPool<std::tuple_element_t<Is, CsTuple>>()
+    //                 // create con el argumento args[i]
+    //                 .create(std::get<Is>(argsTuple))
+    //         )
+    //     , ...);
+    // }(std::index_sequence_for<Cs...>{});
 }
 
 template<typename... Components>

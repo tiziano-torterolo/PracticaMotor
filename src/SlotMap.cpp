@@ -88,7 +88,7 @@ inline void SlotMap<T>::emplace_back(Args&&... args){
 template<typename T>
 template<typename Component>
 inline void SlotMap<T>::push_back(Component&& args){
-    comps[freeIndexStorage] = std::forward<Component>(args) ;
+    comps[freeIndexStorage] = args ;
     refs[freeIndexRefs] = &comps[freeIndexStorage];    
     freeIndexStorage++;
     lastAddedRef = freeIndexRefs;
@@ -125,6 +125,11 @@ void SlotMap<T>::remove(T** elementRef){
     removeByIndex( elementRef - (refs) );
 }
 
+template<typename T>
+void SlotMap<T>::removeLast(){
+        removeLast(getLastRef());
+
+}
 template<typename T>
 void SlotMap<T>::remove(T* element){
     remove( getRefFromStore(element) ); // yo se que no es lo mas optimo pero tampoco esta mal

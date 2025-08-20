@@ -78,19 +78,40 @@ int main() {
 
     //std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[]( auto& n) {  n.setText('b') ; });
     //std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[]( auto& n) {  std::cout << n ; });
-    Engine::Memory<PrinteableComponent> mem = Engine::Memory<PrinteableComponent>(60000000);
+    // Engine::Memory<PrinteableComponent> mem = Engine::Memory<PrinteableComponent>(60000000);
 
-    //for (size_t i = 0; i < 50; i++){
-    //    mem.createEntity<Printable>("Error!",
-    //                Printable::ColorFG::BrightWhite,
-    //                Printable::ColorBG::Red);
-    //}
-    for (size_t i = 0; i < 50; i++){
-        mem.createEntity<PrinteableComponent>(PrinteableComponent('a'+i));
+    // //for (size_t i = 0; i < 50; i++){
+    // //    mem.createEntity<Printable>("Error!",
+    // //                Printable::ColorFG::BrightWhite,
+    // //                Printable::ColorBG::Red);
+    // //}
+    // for (size_t i = 0; i < 50; i++){
+    //     mem.createEntity<PrinteableComponent>(PrinteableComponent('a'+i));
+    // }
+    Engine::SlotMap<PrinteableComponent> mem = Engine::SlotMap<PrinteableComponent>(600);
+
+    for (size_t j = 0; j < 600; j++)
+    {
+        for (size_t i = 0; i < j; i++){
+            mem.create<PrinteableComponent>(PrinteableComponent('a'+i));
+        }
+
+        for (size_t i = 0; i < j; i++){
+            mem.removeLast();
+        }
+
+        for (size_t i = 0; i < j; i++){
+            mem.create<PrinteableComponent>(PrinteableComponent('a'+i));
+        }
+
+        for (size_t i = 0; i < j; i++){
+            mem.removeLast();
+        }/* code */
     }
     
-
-
+    
+    
+    std::cout << "I am here" ;
 
     return 0;
 }

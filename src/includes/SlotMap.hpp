@@ -64,6 +64,8 @@ public:
     
     void removeLast(T**);
     
+    void removeLast();
+
     void remove(T**,T**);
 
     template<typename Preadicate>
