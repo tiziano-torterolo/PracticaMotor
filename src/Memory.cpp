@@ -4,7 +4,7 @@ namespace Engine{
 //******************************************************************************************************************************************************* */
 template<typename... Components>
 Memory<Components...>::Memory(std::size_t n) 
-    :   pools{ SlotMap<Components>(n)... } ,entities(n){}
+    :   pools(n) ,entities(n){}
 
 template<typename... Components>
 Memory<Components...>::~Memory() = default   ;
