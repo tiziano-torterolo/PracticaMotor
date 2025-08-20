@@ -7,7 +7,7 @@ Memory<Components...>::Memory(std::size_t n)
     :   pools{ SlotMap<Components>(n)... } ,entities(n){}
 
 template<typename... Components>
-Memory<Components...>::~Memory(){}   
+Memory<Components...>::~Memory() = default   ;
 
 /*   
 Temporalmente desactivo los construcotres de copia y movimiento porque me da paja hacer los 
