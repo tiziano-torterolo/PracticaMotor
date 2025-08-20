@@ -51,38 +51,6 @@ inline void Memory<Components...>::emplace(Args&&... args) {
 template<typename... Components>
 template<typename... Cs, typename... Args>
 auto Memory<Components...>::createEntity(Args&&... args) {
-    // cada componente de Cs se construye con un argumento de Args
-    // auto entityPtr = entities.create(); // Entity<Components...>**
-
-    // // Para los argumentos, los recibimos en un tuple
-    // auto argTuple = std::forward_as_tuple(std::forward<Args>(args)...);
-
-    // // Creamos y asociamos cada componente Cs con sus args
-    // ([&] {
-    //     // Cada Cs toma su argumento en la posición correspondiente
-    //     auto compPtr = getPool<Cs>().create(std::get<Cs>(argTuple));
-    //     (*entityPtr)->setComponent(compPtr);
-    // }(), ...);
-    static_assert(sizeof...(Cs) == sizeof...(Args),
-                  "Debe haber un argumento por cada componente Cs");
-
-    // 1) crear la entidad (Entity<Components...>**)
-    auto entityPtr = entities.create();
-
-    // // 2) emparejar Cs[i] con args[i]
-    // auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
-    // using CsTuple = std::tuple<Cs...>;
-
-    // [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-    //     ( 
-    //         (*entityPtr)->setComponent(
-    //             // getPool del componente Cs[i]
-    //             getPool<std::tuple_element_t<Is, CsTuple>>()
-    //                 // create con el argumento args[i]
-    //                 .create(std::get<Is>(argsTuple))
-    //         )
-    //     , ...);
-    // }(std::index_sequence_for<Cs...>{});
 }
 
 template<typename... Components>
