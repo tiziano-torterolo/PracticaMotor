@@ -11,10 +11,10 @@ public:
     explicit PrinteableComponent(char&& text);
 
     ~PrinteableComponent();                                // Destructor
-    PrinteableComponent(const PrinteableComponent& other); // Constructor de copia
-    PrinteableComponent(PrinteableComponent&& other) noexcept; // Constructor de movimiento
-    PrinteableComponent& operator=(const PrinteableComponent& other); // Asignación copia
-    PrinteableComponent& operator=(PrinteableComponent&& other) noexcept; // Asignación movimiento
+    PrinteableComponent(const PrinteableComponent& other) noexcept; // Constructor de copia
+    PrinteableComponent(PrinteableComponent&& other)  noexcept; // Constructor de movimiento
+    PrinteableComponent& operator=(const PrinteableComponent& other) noexcept = default; // Asignación copia
+    PrinteableComponent& operator=(PrinteableComponent&& other)  noexcept; // Asignación movimiento
 
     void print() const;
 

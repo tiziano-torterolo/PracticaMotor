@@ -16,7 +16,7 @@ public:
     std::tuple<SlotMap<Components>...> pools;
     SlotMap<Entity<Components...>> entities;
 
-    explicit Memory(std::size_t n =1000);
+    explicit Memory(std::size_t);
 
     ~Memory();                                // Destructor
     Memory(const Memory& other) = delete; // Constructor de copia

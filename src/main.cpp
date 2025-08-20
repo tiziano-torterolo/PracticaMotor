@@ -1,5 +1,5 @@
 // Your First C++ Program
-#include "./includes/PrinteableComponent.hpp"
+#include "./PrinteableComponent.hpp"
 #include "./SlotMap.cpp"
 #include "./Memory.cpp"
 #include "./Entity.cpp"
@@ -86,10 +86,10 @@ int main() {
     //                Printable::ColorBG::Red);
     //}
     for (size_t i = 0; i < 50; i++){
-        mem.createEntity<PrinteableComponent>('a'+i);
+        mem.createEntity<PrinteableComponent>(PrinteableComponent('a'+i));
     }
-
     
+
 
 
     return 0;

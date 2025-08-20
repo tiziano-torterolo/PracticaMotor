@@ -9,13 +9,13 @@ PrinteableComponent::PrinteableComponent(char&& text)
 
 PrinteableComponent::~PrinteableComponent() {}
 
-PrinteableComponent::PrinteableComponent(const PrinteableComponent& other)
+PrinteableComponent::PrinteableComponent(const PrinteableComponent& other) noexcept
     : text(other.text) {}
 
 PrinteableComponent::PrinteableComponent(PrinteableComponent&& other) noexcept
     : text(std::move(other.text)) {}
 
-PrinteableComponent& PrinteableComponent::operator=(PrinteableComponent&& other) noexcept {
+PrinteableComponent& PrinteableComponent::operator=(PrinteableComponent&& other)  noexcept {
     if (this != &other) {
         text = std::move(other.text);
     }
