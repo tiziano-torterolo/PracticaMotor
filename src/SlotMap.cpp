@@ -6,7 +6,6 @@ namespace Engine{
 
 template<typename T>
 SlotMap<T>::SlotMap(std::size_t n){
-    std::cout <<"SlotMap: Creando nuevo de tamaño ="<<n<<std::endl;
     comps = new T[n];
     refs = new T*[n];
     nextfree = new std::size_t[n] ;

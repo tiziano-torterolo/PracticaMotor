@@ -46,6 +46,7 @@ public:
               ColorBG bgColor = ColorBG::Default)
         : text(std::move(txt)), fg(fgColor), bg(bgColor) {}
 
+    Printable() = default;
     // Genera el string coloreado con escape ANSI
     std::string str() const {
         return "\033[" + std::to_string(static_cast<int>(fg)) + ";" +
@@ -85,17 +86,20 @@ int main() {
     // //                Printable::ColorFG::BrightWhite,
     // //                Printable::ColorBG::Red);
     // //}
-    // for (size_t i = 0; i < 50; i++){
-    //     mem.createEntity<PrinteableComponent>(PrinteableComponent('a'+i));
-    // }
+    // 
     // Engine::SlotMap<PrinteableComponent> mem = Engine::SlotMap<PrinteableComponent>(600);
 
-    Engine::Memory<PrinteableComponent> mem = Engine::Memory<PrinteableComponent>(6000);
-    mem.createEntity<Printable>("Error!",
-                    Printable::ColorFG::BrightWhite,
-                    Printable::ColorBG::Red);
+    Engine::Memory<Printable> mem = Engine::Memory<Printable>(6000);
+    for (size_t i = 0; i < 4000; i++){
+        mem.createEntity<Printable>(Printable( "He",Printable::ColorFG::White, Printable::ColorBG::BrightCyan));
+    }
+        mem.createEntity<Printable>(Printable( "Hello world!",Printable::ColorFG::White, Printable::ColorBG::Black));
     
-    std::cout << "I am here" ;
-
+    for (size_t i = 0; i < 4000; i++){
+        std::system("cls");
+        std::string text = "->";
+        std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto n) {  text+= n.str() ; });
+        std::cout << text ;
+    }
     return 0;
 }

@@ -51,6 +51,14 @@ inline void Memory<Components...>::emplace(Args&&... args) {
 template<typename... Components>
 template<typename... Cs, typename... Args>
 auto Memory<Components...>::createEntity(Args&&... args) {
+    auto entityRef = entities.create();
+    auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
+    [&]<std::size_t... I>(std::index_sequence<I...>) {
+        ((*entityRef)->setComponent(
+            getPool<Cs>().create(std::get<I>(argsTuple))
+        ), ...);
+    }(std::index_sequence_for<Cs...>{});
+    
 }
 
 template<typename... Components>
