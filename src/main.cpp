@@ -89,17 +89,24 @@ int main() {
     // 
     // Engine::SlotMap<PrinteableComponent> mem = Engine::SlotMap<PrinteableComponent>(600);
 
+    // Engine::Memory<Printable,PrinteableComponent> mem = Engine::Memory<Printable,PrinteableComponent>(6000);
+    // for (size_t i = 0; i < 4000; i++){
+    //     mem.createEntity<Printable>(Printable( "He",Printable::ColorFG::White, Printable::ColorBG::BrightCyan));
+    // }
+    //     mem.createEntity<Printable>(Printable( "Hello world!",Printable::ColorFG::White, Printable::ColorBG::Black));
+
     Engine::Memory<Printable,PrinteableComponent> mem = Engine::Memory<Printable,PrinteableComponent>(6000);
-    for (size_t i = 0; i < 4000; i++){
-        mem.createEntity<Printable>(Printable( "He",Printable::ColorFG::White, Printable::ColorBG::BrightCyan));
+    for (size_t i = 0; i < 40; i++){
+        mem.createEntity<PrinteableComponent>(PrinteableComponent( 'a'+i));
     }
-        mem.createEntity<Printable>(Printable( "Hello world!",Printable::ColorFG::White, Printable::ColorBG::Black));
-    
-    for (size_t i = 0; i < 4000; i++){
+        mem.createEntity<PrinteableComponent>(PrinteableComponent( '1'));
+        std::cout << "Here i am" <<std::endl ;
+    return 0;
+    for (size_t i = 0; i < 1; i++){
         std::system("cls");
         std::string text = "->";
-        std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto n) {  text+= n.str() ; });
+        std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[&]( auto n) {  text+= n.getText() ; });
         std::cout << text ;
     }
-    return 0;
+    
 }

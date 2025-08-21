@@ -7,7 +7,7 @@
 #include <iostream>
 #include <functional>
 #include <Macros.hpp>
-
+#include <typeinfo>
 namespace Engine{
 
     
@@ -16,10 +16,10 @@ class SlotMap{
 public:
     explicit SlotMap(std::size_t);
     ~SlotMap();
-    // SlotMap(const SlotMap& other) = ; // Constructor de copia
-    // SlotMap(SlotMap&& other) noexcept = ; // Constructor de movimiento
-    // SlotMap& operator=(const SlotMap& other) =  ; // Asignación copia
-    // SlotMap& operator=(SlotMap&& other) noexcept = ; // Asignación movimiento
+    SlotMap(const SlotMap& other); // Constructor de copia
+    SlotMap(SlotMap&& other) noexcept  ; // Constructor de movimiento
+    SlotMap& operator=(const SlotMap& other) =  default; // Asignación copia
+    SlotMap& operator=(SlotMap&& other) noexcept = default; // Asignación movimiento
 private:
 
     std::size_t freeIndexStorage;

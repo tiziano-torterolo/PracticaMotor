@@ -6,6 +6,7 @@ namespace Engine{
 
 template<typename T>
 SlotMap<T>::SlotMap(std::size_t n){
+    std::cout<<"SlotMap: Construyendo nuevo <"<< typeid(T).name() <<"> size = "<<n<<std::endl;
     comps = new T[n];
     refs = new T*[n];
     nextfree = new std::size_t[n] ;
@@ -24,10 +25,42 @@ SlotMap<T>::SlotMap(std::size_t n){
 
 template<typename T>
 SlotMap<T>::~SlotMap(){
+    std::cout<<"SlotMap: Destruyendo <"<< typeid(T).name() <<std::endl;
     delete[] comps;
     delete[] refs;
     delete[] nextfree;
 }
+
+template<typename T>
+SlotMap<T>::SlotMap(const SlotMap& other) {
+    std::cout<<"SlotMap: Constructor de Copia <"<< typeid(T).name() <<std::endl;
+
+    comps = new T[other.capacity];
+    refs = new T*[other.capacity];
+    nextfree = new std::size_t[other.capacity] ;
+
+} // Constructor de copia
+
+template<typename T>
+SlotMap<T>::SlotMap(SlotMap&& other) noexcept: 
+        freeIndexStorage(other.freeIndexStorage)
+        , comps(other.comps)
+        , lastAddedRef(other.lastAddedRef)
+        , freeIndexRefs(other.freeIndexRefs)
+        , refs(other.refs)
+        , capacity(other.capacity)
+        , nextfree(other.nextfree) {
+
+    std::cout<<"SlotMap: Constructor de Movimiento  <"<< typeid(T).name() <<std::endl;
+    other.comps = nullptr;
+    other.refs = nullptr;
+    other.nextfree = nullptr;
+
+    other.capacity = 0;
+    other.freeIndexStorage = 0;
+    other.freeIndexRefs = 0;
+    other.lastAddedRef = 0;;
+}  // Constructor de movimiento
 
 template<typename T>
 [[deprecated("SlotMap is not resizable right")]]
