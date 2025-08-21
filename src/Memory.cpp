@@ -1,10 +1,17 @@
 #include "./includes/Memory.hpp"
+#include "Memory.hpp"
 
 namespace Engine{
+
+template<typename... Components>
+static auto makePools(std::size_t n) {
+    return std::tuple<SlotMap<Components>...>(SlotMap<Components>(n)...);
+}
+
 //******************************************************************************************************************************************************* */
 template<typename... Components>
 Memory<Components...>::Memory(std::size_t n) 
-    :   pools(n) ,entities(n){}
+    :   pools(makePools<Components...>(n)) ,entities(n){}
 
 template<typename... Components>
 Memory<Components...>::~Memory() = default   ;
@@ -31,6 +38,8 @@ Memory<Components...>& Memory<Components...>::operator=(Memory<Components...>&& 
 //******************************************************************************************************************************************************* */
 
 
+
+
 template<typename... Components>
 constexpr void Memory<Components...>::reserve(std::size_t n) {
     (getPool<Components>().reserve(n),...);
@@ -53,6 +62,7 @@ template<typename... Cs, typename... Args>
 auto Memory<Components...>::createEntity(Args&&... args) {
     auto entityRef = entities.create();
     auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
+
     [&]<std::size_t... I>(std::index_sequence<I...>) {
         ((*entityRef)->setComponent(
             getPool<Cs>().create(std::get<I>(argsTuple))

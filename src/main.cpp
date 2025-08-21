@@ -89,7 +89,7 @@ int main() {
     // 
     // Engine::SlotMap<PrinteableComponent> mem = Engine::SlotMap<PrinteableComponent>(600);
 
-    Engine::Memory<Printable> mem = Engine::Memory<Printable>(6000);
+    Engine::Memory<Printable,PrinteableComponent> mem = Engine::Memory<Printable,PrinteableComponent>(6000);
     for (size_t i = 0; i < 4000; i++){
         mem.createEntity<Printable>(Printable( "He",Printable::ColorFG::White, Printable::ColorBG::BrightCyan));
     }

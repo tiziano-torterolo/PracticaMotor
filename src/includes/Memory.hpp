@@ -28,11 +28,13 @@ public:
 
         template<typename T>
         FORCEINLINE SlotMap<T>& getPool() ;
-
+        
 
     public:
 
-        constexpr inline void reserve(std::size_t n) ;
+        // static auto makePools(std::size_t n);
+
+        constexpr inline void reserve(std::size_t n);
 
         template<typename... Cs, typename... Args>
         auto createEntity(Args&&... args) ;
