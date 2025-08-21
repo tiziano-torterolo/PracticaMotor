@@ -3,15 +3,11 @@
 
 namespace Engine{
 
-template<typename... Components>
-static auto makePools(std::size_t n) {
-    return std::tuple<SlotMap<Components>...>(SlotMap<Components>(n)...);
-}
 
 //******************************************************************************************************************************************************* */
 template<typename... Components>
 Memory<Components...>::Memory(std::size_t n) 
-    :   pools{         SlotMap<Components>(n)...} ,entities(n){
+    :   pools{SlotMap<Components>(n)...} ,entities(n){
 
 
     }

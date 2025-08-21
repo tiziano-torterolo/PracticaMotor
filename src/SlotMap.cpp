@@ -33,7 +33,7 @@ SlotMap<T>::~SlotMap(){
 
 template<typename T>
 SlotMap<T>::SlotMap(const SlotMap& other) {
-    std::cout<<"SlotMap: Constructor de Copia <"<< typeid(T).name() <<std::endl;
+    std::cout<<"SlotMap: EL CONSTRUCTOR DE COPIA NO ESTA IMPLEMENTADO xD <"<< typeid(T).name() <<std::endl;
 
     comps = new T[other.capacity];
     refs = new T*[other.capacity];
@@ -51,7 +51,6 @@ SlotMap<T>::SlotMap(SlotMap&& other) noexcept:
         , capacity(other.capacity)
         , nextfree(other.nextfree) {
 
-    std::cout<<"SlotMap: Constructor de Movimiento  <"<< typeid(T).name() <<std::endl;
     other.comps = nullptr;
     other.refs = nullptr;
     other.nextfree = nullptr;
@@ -169,10 +168,6 @@ void SlotMap<T>::remove(T* element){
 
 template<typename T>
 void SlotMap<T>::removeByIndex(std::size_t index){
-    // Tomar el ultimo valor y cambiarlo con el primer
-    //ir a referencias y switchear los que tengan la referencia de los valores cambiados
-
-    //Casos particulares, remover ultimo, remover no elemento, remover elemento removido
     std::cout <<index ;
     if (index>=freeIndexStorage){
         throw std::runtime_error("SlotMapError: index>freeIndexStorage");

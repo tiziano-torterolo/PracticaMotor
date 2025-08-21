@@ -4,21 +4,21 @@
 #include <cstdint>
 
 
-class PrinteableComponent {
+class PrintableComponent {
 public:
 
-    explicit PrinteableComponent(const char& text = '0');
-    explicit PrinteableComponent(char&& text);
+    explicit PrintableComponent(const char& text = '0');
+    explicit PrintableComponent(char&& text);
 
-    ~PrinteableComponent();                                // Destructor
-    PrinteableComponent(const PrinteableComponent& other) noexcept; // Constructor de copia
-    PrinteableComponent(PrinteableComponent&& other)  noexcept; // Constructor de movimiento
-    PrinteableComponent& operator=(const PrinteableComponent& other) noexcept = default; // Asignación copia
-    PrinteableComponent& operator=(PrinteableComponent&& other)  noexcept; // Asignación movimiento
+    ~PrintableComponent();                                // Destructor
+    PrintableComponent(const PrintableComponent& other) noexcept; // Constructor de copia
+    PrintableComponent(PrintableComponent&& other)  noexcept; // Constructor de movimiento
+    PrintableComponent& operator=(const PrintableComponent& other) noexcept = default; // Asignación copia
+    PrintableComponent& operator=(PrintableComponent&& other)  noexcept; // Asignación movimiento
 
     void print() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const PrinteableComponent& pc);
+    friend std::ostream& operator<<(std::ostream& os, const PrintableComponent& pc);
 
     void setText(const char& newText);
     void setText(char&& newText);

@@ -95,15 +95,15 @@ int main() {
     // }
     //     mem.createEntity<Printable>(Printable( "Hello world!",Printable::ColorFG::White, Printable::ColorBG::Black));
 
-    Engine::Memory<Printable,PrinteableComponent> mem = Engine::Memory<Printable,PrinteableComponent>(6000);
+    Engine::Memory<Printable,PrintableComponent> mem = Engine::Memory<Printable,PrintableComponent>(6000);
     for (size_t i = 0; i < 40; i++){
-        mem.createEntity<PrinteableComponent>(PrinteableComponent( 'a'+i));
+        mem.createEntity<PrintableComponent>(PrintableComponent( 'a'+i));
     }
-        mem.createEntity<PrinteableComponent>(PrinteableComponent( '1'));
+        mem.createEntity<PrintableComponent>(PrintableComponent( '1'));
     
     for (size_t i = 0; i < 1; i++){
         std::string text = "->";
-        std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[&]( auto n) {  text+= n.getText() ; });
+        std::for_each(mem.begin<PrintableComponent>(),mem.end<PrintableComponent>(),[&]( auto n) {  text+= n.getText() ; });
         std::cout << text <<std::endl;
     }
     for (size_t i = 0; i < 40; i++){
@@ -118,9 +118,9 @@ int main() {
     }
 
     for (size_t i = 0; i < 40; i++){
-        mem.createEntity<PrinteableComponent,Printable>(PrinteableComponent( 'a'+i),Printable( "Sexo",Printable::ColorFG::White, Printable::ColorBG::BrightRed));
+        mem.createEntity<PrintableComponent,Printable>(PrintableComponent( 'a'+i),Printable( "Sexo",Printable::ColorFG::White, Printable::ColorBG::BrightRed));
     }
-        mem.createEntity<PrinteableComponent,Printable>(PrinteableComponent( '1'),Printable( "Sexo!",Printable::ColorFG::White, Printable::ColorBG::Black));
+        mem.createEntity<PrintableComponent,Printable>(PrintableComponent( '1'),Printable( "Sexo!",Printable::ColorFG::White, Printable::ColorBG::Black));
     
     for (size_t i = 0; i < 1; i++){
         std::string text = "->";
@@ -134,8 +134,8 @@ int main() {
             if((std::get<Printable**>(n.comps))!=nullptr ){
                 text+= (*std::get<Printable**>(n.comps))->str() ;
             }
-            if((std::get<PrinteableComponent**>(n.comps))!=nullptr){
-                text+= (*std::get<PrinteableComponent**>(n.comps))->getText() ;
+            if((std::get<PrintableComponent**>(n.comps))!=nullptr){
+                text+= (*std::get<PrintableComponent**>(n.comps))->getText() ;
             }
               });
         std::cout << text <<std::endl;
