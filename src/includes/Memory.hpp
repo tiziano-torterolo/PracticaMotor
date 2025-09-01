@@ -32,8 +32,6 @@ public:
 
     public:
 
-        // static auto makePools(std::size_t n);
-
         constexpr inline void reserve(std::size_t n);
 
         template<typename... Cs, typename... Args>
