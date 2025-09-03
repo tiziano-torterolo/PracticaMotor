@@ -10,6 +10,7 @@
 #include <thread>
 #include <cstdlib> 
 #include <memory>
+#include <stdio.h>
 
 #include <iostream>
 #include <string>
@@ -36,23 +37,50 @@ public:
 
 private:
     
+    
+
 
 public:
     char text;
+    char* out;
     ColorFG fg;
     ColorBG bg;
     // Constructor
     Printable(char txt,
               ColorFG fgColor = ColorFG::Default,
               ColorBG bgColor = ColorBG::Default)
-        : text(std::move(txt)), fg(fgColor), bg(bgColor) {}
+        : text(std::move(txt)), fg(fgColor), bg(bgColor) {
+            out = new char[2+3+1+3+1+1+4];
+            std::snprintf(out, 2+3+1+3+1+1+4, "\033[%d;%dm%c\033[0m",
+                  static_cast<int>(fg),
+                  static_cast<int>(bg),
+                  text);
+        }
 
-    Printable() = default;
+    Printable() {
+        delete[] out;
+    };
     // Genera el string coloreado con escape ANSI
     std::string str() const {
         return "\033[" + std::to_string(static_cast<int>(fg)) + ";" +
                std::to_string(static_cast<int>(bg)) + "m" +
                text + "\033[0m";
+    }
+    
+    char* chars() const {
+        return out;
+    }
+
+    inline void setBG(ColorBG bg){
+        this->bg=bg;
+        std::snprintf(out, 2+3+1+3+1+1+4, "\033[%d;%dm%c\033[0m",
+                  static_cast<int>(this->fg),
+                  static_cast<int>(this->bg),
+                  this->text);
+    }
+
+    inline char* getChars(){
+        return nullptr;
     }
 
     // Sobrecarga de operador de impresión
@@ -66,88 +94,44 @@ int main() {
     // // g++ -std=c++23 -I ./src/includes src/SlotMap.cpp src/PrinteableComponent.cpp src/Memory.cpp src/Entity.cpp src/main.cpp -o main
     // 192x36
     
-
-
-    // for (size_t i = 0; i < 500; i++){
-    //     mem.emplace<PrinteableComponent>('a');
-    // }
     
+    Engine::Memory<Printable,PrintableComponent> mem = Engine::Memory<Printable,PrintableComponent>(60000,10000,10000);
 
-    // using namespace std::chrono_literals;
-    // std::this_thread::sleep_for(1230ms);
-
-
-
-    //std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[]( auto& n) {  n.setText('b') ; });
-    //std::for_each(mem.begin<PrinteableComponent>(),mem.end<PrinteableComponent>(),[]( auto& n) {  std::cout << n ; });
-    // Engine::Memory<PrinteableComponent> mem = Engine::Memory<PrinteableComponent>(60000000);
-
-    // //for (size_t i = 0; i < 50; i++){
-    // //    mem.createEntity<Printable>("Error!",
-    // //                Printable::ColorFG::BrightWhite,
-    // //                Printable::ColorBG::Red);
-    // //}
-    // 
-    // Engine::SlotMap<PrinteableComponent> mem = Engine::SlotMap<PrinteableComponent>(600);
-
-    // Engine::Memory<Printable,PrinteableComponent> mem = Engine::Memory<Printable,PrinteableComponent>(6000);
-    // for (size_t i = 0; i < 4000; i++){
-    //     mem.createEntity<Printable>(Printable( "He",Printable::ColorFG::White, Printable::ColorBG::BrightCyan));
-    // }************
-    //     mem.createEntity<Printable>(Printable( "Hello world!",Printable::ColorFG::White, Printable::ColorBG::Black));
-
-    for (size_t k = 1; k < 6; k++)    {
-        int ancho = (16 * k*3) -4;
-        int alto = 9 * k ;
-        std::cout <<std::endl<<std::endl<< ancho <<"x"<<alto <<std::endl;
-        for (int i = 0; i < alto ; i++) {
-            for (int j = 0; j < ancho; j++) {
-                std::cout << "*";
-            }
-            std::cout << "\n";
-        }   /* code */
-    }
-    
-    
-    Engine::Memory<Printable,PrintableComponent> mem = Engine::Memory<Printable,PrintableComponent>(60000);
-
-    
+    return 0;
 
     for (size_t i = 0; i < 192*46; i++){
-        mem.createEntity<Printable>(Printable( 176,Printable::ColorFG::White, Printable::ColorBG::Cyan));
+        mem.createEntity<Printable>(Printable( 176,Printable::ColorFG::White, Printable::ColorBG::BrightBlack));
     }
+
     
     std::string text = "->";
-    for (size_t i = 0; i < 300; i++)
-    {
-        for (size_t i = 0; i < 1; i++){
-            text = "->";
-            bool setswitch = false;
-            std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto& n) {  
-                if(setswitch){
-                    return;
-                }
-                if(n.bg != Printable::ColorBG::BrightMagenta){
-                    n.bg = Printable::ColorBG::BrightMagenta;
-                    setswitch = true;
-                    return;
-                } ; });
-            std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto n) {  text+= n.str() ; });
-
-            #ifdef _WIN32 // For Windows
-                system("cls");
-            #else // For Unix-like systems
-                system("clear");
-            #endif
-            
-            std::cout << text <<std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
-        }/* code */
+    for (size_t i = 0; i < 192*46; i++){
+        text = "->";
+        bool chosen = false;
+        std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto& n) {  
+            if(chosen){
+                return;
+            }
+            if(n.bg!=Printable::ColorBG::BrightGreen){
+                n.setBG(Printable::ColorBG::BrightGreen);
+                chosen=true;
+            }
+        
+        });
+        std::for_each(mem.begin<Printable>(),mem.end<Printable>(),[&]( auto n) {  text+= n.chars() ; });
+        std::cout<<"\033[H"<<text<<std::endl;
     }
     
-    
-
     
 
     return 0;
+    #ifdef _WIN32 // For Windows
+        system("cls");
+    #else // For Unix-like systems
+        system("clear");
+    #endif
+
+    
+
+    
 } 

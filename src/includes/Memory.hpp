@@ -16,7 +16,7 @@ public:
     std::tuple<SlotMap<Components>...> pools;
     SlotMap<Entity<Components...>> entities;
 
-    explicit Memory(std::size_t);
+    Memory(std::size_t);
 
     ~Memory();                                // Destructor
     Memory(const Memory& other) = delete; // Constructor de copia
@@ -24,6 +24,9 @@ public:
     Memory& operator=(const Memory& other) = delete ; // Asignación copia
     Memory& operator=(Memory&& other) noexcept = delete; // Asignación movimiento
    
+    template<typename... Sizes>
+    Memory(std::size_t entityCount, Sizes... sizes);
+
     private:
 
         template<typename T>
