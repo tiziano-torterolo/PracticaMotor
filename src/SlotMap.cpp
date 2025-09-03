@@ -50,6 +50,7 @@ SlotMap<T>::SlotMap(SlotMap&& other) noexcept:
         , refs(other.refs)
         , capacity(other.capacity)
         , nextfree(other.nextfree) {
+    std::cout<<"SlotMap: Constructor de movimiento <"<< typeid(T).name() <<std::endl;
 
     other.comps = nullptr;
     other.refs = nullptr;

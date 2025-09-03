@@ -41,8 +41,8 @@ private:
 
 
 public:
-    char text;
-    char* out;
+    char text = 'x';
+    char* out = nullptr;
     ColorFG fg;
     ColorBG bg;
     // Constructor
