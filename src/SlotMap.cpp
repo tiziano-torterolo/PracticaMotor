@@ -71,7 +71,8 @@ inline void SlotMap<T>::reserve(std::size_t n){
 template<typename T>
 template<typename IteratorBegin,typename IteratorEnd>
 [[deprecated("SlotMap is not resizable right")]]
-inline void SlotMap<T>::reserve(std::size_t n,IteratorBegin begin,IteratorEnd end){
+inline void SlotMap<T>::resize(std::size_t n,IteratorBegin begin,IteratorEnd end){
+    
     return;
 
     

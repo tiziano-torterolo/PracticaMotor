@@ -56,8 +56,8 @@ FORCEINLINE SlotMap<T>& Memory<Components...>::getPool() {
 
 template<typename... Components>
 template<typename T, typename... Args>
-inline void Memory<Components...>::emplace(Args&&... args) {
-    getPool<T>().create(std::forward<Args>(args)...);
+auto Memory<Components...>::emplace(Args&&... args) {
+    return getPool<T>().create(std::forward<Args>(args)...);
 }
 
 template<typename... Components>

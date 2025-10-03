@@ -10,8 +10,11 @@ class Entity{
 private:
     /* data */
 
-public:
+    Entity** Parent = nullptr;
+
     std::tuple<Components**...> comps;
+
+public:
     //auto mask;
 
     Entity() = default;
@@ -25,6 +28,13 @@ public:
 
     template<typename T>
     void setComponent(T**);
+
+    template<typename T>
+    void getComponent() const ;
+
+    void setParent(Entity**);
+
+    auto getParent() const;
 
 };
 

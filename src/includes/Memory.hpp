@@ -42,7 +42,7 @@ public:
         
 
         template<typename T, typename... Args>
-        inline void emplace(Args&&... args) ;
+        auto emplace(Args&&... args) ;
 
         template<typename T>
         inline auto begin();
