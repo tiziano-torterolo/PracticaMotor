@@ -8,10 +8,7 @@
 #include <algorithm> // std::transform
 namespace Engine{
 
-template<typename Memory, typename... Comps>
-concept MemoryType = (requires(Memory a, Comps comp) {
-    { a.template emplace<Comps>(std::move(comp)) } -> std::convertible_to<Comps**>;
-} && ...);    
+
 
 template<std::size_t width,std::size_t height>
 class BackgroundComponent{

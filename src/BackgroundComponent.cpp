@@ -9,7 +9,6 @@ template<class T>
 requires MemoryType<T, ASCIIPixelComponent>
 BackgroundComponent<width,height>::BackgroundComponent(T* mem,std::array<ASCIIPixelComponent,width*height>&& input)
     : pixels(), Enabled(true){
-
     std::transform(
         input.begin(), input.end(), pixels.begin(),
         [&](ASCIIPixelComponent& comp) {
