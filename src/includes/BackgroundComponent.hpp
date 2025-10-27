@@ -22,11 +22,27 @@ public:
     
 
     BackgroundComponent() = default;
+
     template<class Memory>
     requires MemoryType<Memory, ASCIIPixelComponent>
     BackgroundComponent(Memory* mem,std::array<ASCIIPixelComponent, width*height>&& input);
-        template<MemoryType Memory>
+
+    template<MemoryType Memory>
     BackgroundComponent(Memory* mem,ASCIIPixelComponent*&& input);
+
+    template<typename Memory>
+    requires MemoryType<Memory, ASCIIPixelComponent>
+    BackgroundComponent(Memory* mem, unsigned char* chars, ASCIIPixelComponent::ColorBG* cbg, ASCIIPixelComponent::ColorFG* fbg);
+
+    template<typename Memory>
+    requires MemoryType<Memory, ASCIIPixelComponent>
+    BackgroundComponent(Memory* mem, std::initializer_list<unsigned char>&& chars_list, std::initializer_list<ASCIIPixelComponent::ColorBG>&& cbg_list, std::initializer_list<ASCIIPixelComponent::ColorFG>&& fbg_list);
+
+    // Destructor personalizado que limpia del Memory (declaración)
+    template<typename Memory>
+    requires MemoryType<Memory, ASCIIPixelComponent>
+    void destroy(Memory* mem);
+    
     ~BackgroundComponent() = default;                                // Destructor
     BackgroundComponent(const BackgroundComponent& other) = default; // Constructor de copia
     BackgroundComponent(BackgroundComponent&& other) noexcept = default; // Constructor de movimiento
@@ -38,6 +54,8 @@ public:
     FORCEINLINE std::size_t getHeight() const;
     FORCEINLINE bool getEnabled() const;
     FORCEINLINE char getMask() const;
+    FORCEINLINE auto begin() const;
+    FORCEINLINE auto end() const;
 
 public:
 

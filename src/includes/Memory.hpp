@@ -5,6 +5,7 @@
 #include <SlotMap.hpp>
 #include <Macros.hpp>
 #include <Entity.hpp>
+#include <utility>
 
 namespace Engine{
 
@@ -27,44 +28,50 @@ public:
     template<typename... Sizes>
     Memory(std::size_t entityCount, Sizes... sizes);
 
-    private:
+    template<std::size_t... I, typename... Sizes>
+    static auto makePools(std::index_sequence<I...>, Sizes&&... sizes);
 
-        template<typename T>
-        FORCEINLINE SlotMap<T>& getPool() ;
-        
+private:
 
-    public:
+    template<typename T>
+    FORCEINLINE SlotMap<T>& getPool() ;
+    
 
-        constexpr inline void reserve(std::size_t n);
+public:
 
-        template<typename... Cs, typename... Args>
-        auto createEntity(Args&&... args) ;
-        
+    constexpr inline void reserve(std::size_t n);
 
-        template<typename T, typename... Args>
-        auto emplace(Args&&... args) ;
+    template<typename... Cs, typename... Args>
+    auto createEntity(Args&&... args) ;
+    
 
-        template<typename T>
-        inline auto begin();
+    template<typename T, typename... Args>
+    auto emplace(Args&&... args) ;
 
-        template<typename T>
-        inline auto end();
+    template<typename T>
+    inline auto begin();
 
-        inline auto begin();
+    template<typename T>
+    inline auto end();
 
-        inline auto end();
+    inline auto begin();
 
-        template<typename T>
-        void remove(T& t);
+    inline auto end();
 
-        template<typename Preadicate>
-        void removeIf(Preadicate& t);
+    template<typename T>
+    void remove(T& t);
 
-        template<typename Preadicate>
-        void forEach(Preadicate&);
+    template<typename T>
+    void remove(T** t);
 
-        template<typename T,typename Preadicate>
-        void forEach(Preadicate&);
+    template<typename Preadicate>
+    void removeIf(Preadicate& t);
+
+    template<typename Preadicate>
+    void forEach(Preadicate&);
+
+    template<typename T,typename Preadicate>
+    void forEach(Preadicate&);
 
 
 

@@ -5,12 +5,27 @@ namespace Engine{
 
 
 //******************************************************************************************************************************************************* */
-template<typename... Components>
-Memory<Components...>::Memory(std::size_t n) 
-    :   pools{SlotMap<Components>(n)...} ,entities(n){}
+template <typename... Components>
+Memory<Components...>::Memory(std::size_t n)
+    : Memory(n, ((void)Components{}, n)...)  // delega al otro constructor
+{}
 
 template<typename... Components>
 Memory<Components...>::~Memory() = default   ;
+
+template<typename... Components>
+template<typename... Sizes>
+Memory<Components...>::Memory(std::size_t entityCount, Sizes... sizes)
+    : pools(std::forward<Sizes>(sizes)...),
+      entities(entityCount)
+{
+    static_assert(sizeof...(Sizes) == sizeof...(Components),
+                  "Debe haber un tamaño por cada componente");
+}
+
+
+
+/*      
 
 template<typename... Components>
 template<typename... Sizes>
@@ -19,7 +34,6 @@ Memory<Components...>::Memory(std::size_t entityCount, Sizes... sizes)
         static_assert(sizeof...(Sizes) == sizeof...(Components),"Debe haber un tamaño por cada componente");
     }
 
-/*      
 Temporalmente desactivo los construcotres de copia y movimiento porque me da paja hacer los 
 Constructores de copia y movimiento del SlotMap   
 
