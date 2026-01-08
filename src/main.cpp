@@ -34,6 +34,7 @@ public:
 int main() {
     // // g++ -std=c++23 -I ./src/includes src/SlotMap.cpp src/PrintableComponent.cpp src/Memory.cpp src/Entity.cpp src/main.cpp src/BackgroundComponent.cpp src/ASCIIPixelComponent.cpp src/SpriteAnimationComponent.cpp src/SpriteComponent.cpp -o main
     // 192x36
+    // VM 1234 
     
 
     auto mem = 
@@ -41,14 +42,21 @@ int main() {
     Point,
     Engine::SpriteComponent<3,3,Point>,
     Engine::BackgroundComponent<100,30>,
+    Engine::BackgroundComponent<192,36>,
     Engine::ASCIIPixelComponent
-    >(4000);
+    >(10,10,10,10,10,192*36*4);
 
     std::array<Engine::ASCIIPixelComponent,3000> tmp;
     Map1 map;
     for (size_t i = 0; i < 3000; i++)
     {
         tmp[i]=  Engine::ASCIIPixelComponent(map.chars[i],static_cast<Engine::ASCIIPixelComponent::ColorBG>(map.BGcolors[i]),static_cast<Engine::ASCIIPixelComponent::ColorFG>(map.FGcolors[i]));
+    }
+    std::array<Engine::ASCIIPixelComponent,192*36> tmp2;
+    Map2 map2;
+    for (size_t i = 0; i < 192*36; i++)
+    {
+        tmp2[i]=  Engine::ASCIIPixelComponent(map2.chars[i],static_cast<Engine::ASCIIPixelComponent::ColorBG>(map2.BGcolors[i]),static_cast<Engine::ASCIIPixelComponent::ColorFG>(map2.FGcolors[i]));
     }
     auto sprite = mem.emplace<Engine::SpriteComponent<3,3,Point>>(Engine::SpriteComponent<3,3,Point>(
         &mem,
@@ -65,7 +73,10 @@ int main() {
         &mem,
         std::move(tmp)
     ));
-
+    auto bg2 = mem.emplace<Engine::BackgroundComponent<192,36>>(Engine::BackgroundComponent<192,36>(
+        &mem,
+        std::move(tmp2)
+    ));
     std::string text = "->"; int i=0;
     std::for_each((*bg)->begin(),(*bg)->end(),[&]( auto n) {
             text+=(*n)->str(); 
@@ -76,6 +87,28 @@ int main() {
                 i=0;
             }
         });
+
+    text ="";
+    std::for_each((*bg2)->begin(),(*bg2)->end(),[&]( auto n) {
+            text+=(*n)->str(); 
+            i++;
+            if(i==192){
+                text+='\n';
+                i=0;
+            }
+        });
+    #ifdef _WIN32 // For Windows
+        system("cls");
+    #else // For Unix-like systems
+        system("clear");
+    #endif
+    for (size_t i = 0; i < 4000; i++)
+    {
+        std::cout<<text<<std::endl;
+        std::cout << "\033[H";        // Limpia la pantalla
+    }
+        
+    std::cout<<text<<std::endl;
     std::for_each((*sprite)->begin(),(*sprite)->end(),[&]( auto n) {
             text+=(*n)->str(); 
             i++;
