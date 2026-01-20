@@ -15,6 +15,7 @@ class BackgroundComponent{
 
 private:
     std::array<ASCIIPixelComponent**, width*height> pixels;
+    bool ASCIIPixelComponentOwned;
     bool Enabled;
     std::size_t Mask;
 public:

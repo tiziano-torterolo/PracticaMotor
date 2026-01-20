@@ -17,6 +17,7 @@ private:
     std::size_t Mask;
     Position** pos;
     bool PositionOwned;
+    bool ASCIIPixelComponentOwned;
 public:
 
     
@@ -37,11 +38,11 @@ public:
 
     template<typename Memory>
     requires MemoryType<Memory, ASCIIPixelComponent>
-    SpriteComponent(Memory*,unsigned char* ,ASCIIPixelComponent::ColorBG*, ASCIIPixelComponent::ColorFG*);  //Crear a travez de un arreglo de ASCIIPixelComponent ya creado en memory
+    SpriteComponent(Memory*,unsigned char* ,ASCIIPixelComponent::ColorBG*, ASCIIPixelComponent::ColorFG*);  //Crear a travez de arreglos de chars y colores
 
     template<typename Memory>
     requires MemoryType<Memory, ASCIIPixelComponent>
-    SpriteComponent(Memory*,std::initializer_list<unsigned char>&& ,std::initializer_list<ASCIIPixelComponent::ColorBG>&&, std::initializer_list<ASCIIPixelComponent::ColorFG>&&);  //Crear a travez de un arreglo de ASCIIPixelComponent ya creado en memory
+    SpriteComponent(Memory*,std::initializer_list<unsigned char>&& ,std::initializer_list<ASCIIPixelComponent::ColorBG>&&, std::initializer_list<ASCIIPixelComponent::ColorFG>&&);  //Crear a travez de initializer_list de chars y colores
     
     // Variantes que reciben además un Position
     template<typename Memory>

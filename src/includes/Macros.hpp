@@ -13,7 +13,7 @@ concept MemoryType = (requires(Memory a, Comps comp) {
 } && ...);    
 
 template<typename T>
-concept Drawable = requires(T a) {
+concept DrawableSprite = requires(T a) {
     { a.setWidth() }  -> std::convertible_to<std::size_t>;
     { a.setHeight() } -> std::convertible_to<std::size_t>;
     { a.Enable() }    -> std::convertible_to<bool>;
@@ -21,6 +21,7 @@ concept Drawable = requires(T a) {
     { a.begin() }      -> std::convertible_to<T**>;
     { a.end() }        -> std::convertible_to<T**>;
 };
+
 template<typename T>
 concept Positionable = requires(T a) {
     { a.getX() } -> std::convertible_to<std::size_t>;
@@ -35,7 +36,7 @@ concept MemoryDestruible = MemoryType<Memory, Comps...> && requires(T t, Memory*
 // helper: solo se instanciará cuando MemoryDestruible sea true
 template<typename C, typename M>
 requires MemoryDestruible<C, M, C>
-static void call_destroy_if(C* c, M* mem) {
+static void call_component_destroy(C* c, M* mem) {
     c->destroy(mem);
 }
 

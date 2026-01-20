@@ -7,71 +7,40 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,std::array<ASCIIPixelComponent, width*height>&& input)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(false){
-    std::transform(
-        input.begin(), input.end(), pixels.begin(),
-        [&](ASCIIPixelComponent& comp) {
-            return mem->template emplace<ASCIIPixelComponent>(std::move(comp));
-        }
-    );  
+    : SpriteComponent(mem, std::move(input), nullptr)
+{
 }
 
 template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,ASCIIPixelComponent*&& input)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(false){
-    for(std::size_t i=0;i<width*height;++i){
-        pixels[i] = mem->template emplace<ASCIIPixelComponent>(std::move(input[i]));
-    }
+    : SpriteComponent(mem, std::move(input), nullptr)
+{
 }
 
 template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,unsigned char* chars,ASCIIPixelComponent::ColorBG* cbg, ASCIIPixelComponent::ColorFG* fbg)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(false){
-    for (std::size_t i = 0; i < width * height; ++i) {
-        pixels[i] = mem->template emplace<ASCIIPixelComponent>(chars[i], cbg[i], fbg[i]);
-    }
+    : SpriteComponent(mem, chars, cbg, fbg, 0, 0)
+{
 }
 
 template<std::size_t width, std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width, height,Position>::SpriteComponent(Memory* mem,std::initializer_list<unsigned char>&& chars_list,std::initializer_list<ASCIIPixelComponent::ColorBG>&& cbg_list, std::initializer_list<ASCIIPixelComponent::ColorFG>&& fbg_list)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(false)
+    : SpriteComponent(mem, std::move(chars_list), std::move(cbg_list), std::move(fbg_list), 0, 0)
 {
-    auto it_char = chars_list.begin();
-    auto it_cbg  = cbg_list.begin();
-    auto it_fbg  = fbg_list.begin();
-
-    std::size_t pixel_index = 0;
-
-    for (; it_char != chars_list.end() &&
-           it_cbg  != cbg_list.end()  &&
-           it_fbg  != fbg_list.end();
-         ++it_char, ++it_cbg, ++it_fbg)
-    {
-        pixels[pixel_index++] = mem->template emplace<ASCIIPixelComponent>(
-            *it_char, *it_cbg, *it_fbg
-        );
-
-        if (pixel_index >= width * height)
-            break;
-    }
 }
 
 template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* /*mem*/, ASCIIPixelComponent*** input)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(false)
+    : SpriteComponent(nullptr, input, nullptr)
 {
-    for (std::size_t i = 0; i < width * height; ++i) {
-        // input proporciona punteros a ASCIIPixelComponent** ya emplaced en Memory
-        pixels[i] = input[i];
-    }
 }
 
 
@@ -84,7 +53,7 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,std::array<ASCIIPixelComponent, width*height>&& input, Position&& position)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true)
+    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
 {
     std::transform(
         input.begin(), input.end(), pixels.begin(),
@@ -102,7 +71,7 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,ASCIIPixelComponent*&& input, Position&& position)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true)
+    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = mem->template emplace<ASCIIPixelComponent>(std::move(input[i]));
@@ -115,7 +84,7 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* /*mem*/,ASCIIPixelComponent*** input, Position** position)
-    : pixels(), Enabled(true), pos(position), PositionOwned(false)
+    : pixels(), Enabled(true), pos(position), PositionOwned(false), ASCIIPixelComponentOwned(false)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = input[i];
@@ -127,7 +96,7 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,unsigned char* chars,ASCIIPixelComponent::ColorBG* cbg, ASCIIPixelComponent::ColorFG* fbg, std::size_t x, std::size_t y)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true)
+    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = mem->template emplace<ASCIIPixelComponent>(chars[i], cbg[i], fbg[i]);
@@ -140,7 +109,7 @@ template<std::size_t width, std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width, height,Position>::SpriteComponent(Memory* mem,std::initializer_list<unsigned char>&& chars_list,std::initializer_list<ASCIIPixelComponent::ColorBG>&& cbg_list, std::initializer_list<ASCIIPixelComponent::ColorFG>&& fbg_list, std::size_t x, std::size_t y)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true)
+    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
 {
     auto it_char = chars_list.begin();
     auto it_cbg  = cbg_list.begin();
@@ -169,16 +138,19 @@ template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 void SpriteComponent<width,height,Position>::destroy(Memory* mem)
 {
-    for (std::size_t i = 0; i < width * height; ++i) {
-        ASCIIPixelComponent** comp = pixels[i];
-        if (!comp) continue;
+    if(this->ASCIIPixelComponentOwned){
+        for (std::size_t i = 0; i < width * height; ++i) {
 
-        if constexpr (MemoryDestruible<ASCIIPixelComponent, Memory, ASCIIPixelComponent>) {
-            call_destroy_if<ASCIIPixelComponent, Memory>(*comp, mem);
+            ASCIIPixelComponent** comp = pixels[i];
+            if (!comp) continue;
+
+            if constexpr (MemoryDestruible<ASCIIPixelComponent, Memory, ASCIIPixelComponent>) {
+                call_component_destroy<ASCIIPixelComponent, Memory>(*comp, mem);
+            }
+
+            mem->remove(comp);
+            pixels[i] = nullptr;
         }
-
-        mem->remove(comp);
-        pixels[i] = nullptr;
     }
 
     // manejar el componente pos (Position**)
@@ -187,7 +159,7 @@ void SpriteComponent<width,height,Position>::destroy(Memory* mem)
         Position** p = this->pos;
         if (*p) {
             if constexpr (MemoryDestruible<Position, Memory, Position>) {
-                call_destroy_if<Position, Memory>(*p, mem);
+                call_component_destroy<Position, Memory>(*p, mem);
             }
             mem->remove(p);
         }
@@ -230,15 +202,13 @@ FORCEINLINE  auto SpriteComponent<width,height,Position>::end() const{
 template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, Position>
-void SpriteComponent<width,height,Position>::setPosition(Memory* mem, Position&& position)
-{
+void SpriteComponent<width,height,Position>::setPosition(Memory* mem, Position&& position){
     this->pos = mem->template emplace<Position>(std::forward<Position>(position));
     this->PositionOwned = true;
 }
 
 template<std::size_t width,std::size_t height,Positionable Position>
-void SpriteComponent<width,height,Position>::setPosition(Position** position)
-{
+void SpriteComponent<width,height,Position>::setPosition(Position** position){
     this->pos = position;
     this->PositionOwned = false;
 }

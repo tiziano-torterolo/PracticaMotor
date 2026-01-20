@@ -102,7 +102,7 @@ int main() {
     #else // For Unix-like systems
         system("clear");
     #endif
-    for (size_t i = 0; i < 4000; i++)
+    for (size_t i = 0; i < 200; i++)
     {
         std::cout<<text<<std::endl;
         std::cout << "\033[H";        // Limpia la pantalla

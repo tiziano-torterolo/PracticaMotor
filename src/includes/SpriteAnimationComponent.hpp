@@ -6,7 +6,7 @@
 #include <algorithm> // std::transform
 namespace Engine{
 
-template<Drawable Sprite ,std::size_t size>
+template<DrawableSprite Sprite ,std::size_t size>
 class SpriteAnimationComponent{
 
 private:
@@ -14,8 +14,6 @@ private:
     std::size_t currentSprite;
     bool Enabled;
 public:
-
-    
 
     SpriteAnimationComponent() = default;
     template<MemoryType Memory>
@@ -42,10 +40,8 @@ public:
 
 public:
 
-
     FORCEINLINE void  updateSprite(std::size_t);
     FORCEINLINE Sprite** getSprite() const;
-
 
 public:
 
