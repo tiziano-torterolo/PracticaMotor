@@ -48,23 +48,6 @@ int main() {
     Engine::ASCIIPixelComponent
     >(10,10,10,10,10,192*36*4);
 
-
-
-
-        
-    return 0;    
-    std::cout << "\033[2J";        // Limpia la pantalla
-    std::cout << "\033[20;100H";   // Mueve el cursor a (fila 20, columna 100)
-    std::cout << "Hola desde (20,100)" << std::endl;
-
-
-
-    std::cout<<"\033[H"<<std::endl;
-    #ifdef _WIN32 // For Windows
-        system("cls");
-    #else // For Unix-like systems
-        system("clear");
-    #endif
     std::array<Engine::ASCIIPixelComponent,3000> tmp;
     Map1 map;
     for (size_t i = 0; i < 3000; i++)
@@ -96,6 +79,23 @@ int main() {
         &mem,
         std::move(tmp2)
     ));
+
+
+        
+    return 0;    
+    std::cout << "\033[2J";        // Limpia la pantalla
+    std::cout << "\033[20;100H";   // Mueve el cursor a (fila 20, columna 100)
+    std::cout << "Hola desde (20,100)" << std::endl;
+
+
+
+    std::cout<<"\033[H"<<std::endl;
+    #ifdef _WIN32 // For Windows
+        system("cls");
+    #else // For Unix-like systems
+        system("clear");
+    #endif
+    
 
     
 
