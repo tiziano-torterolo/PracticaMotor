@@ -53,7 +53,7 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,std::array<ASCIIPixelComponent, width*height>&& input, Position&& position)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
+    : pixels(), Enabled(true), ASCIIPixelComponentOwned(true)
 {
     std::transform(
         input.begin(), input.end(), pixels.begin(),
@@ -62,8 +62,8 @@ SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,std::array<A
         }
     );
 
-    // emplace Position into Memory and store pointer
-    this->pos = mem->template emplace<Position>(std::forward<Position>(position));
+    // emplace Position into Memory and store pointe
+    Component<Position>::template setChild<Position>(mem->template emplace<Position>(std::forward<Position>(position)), true); 
 }
 
 // ASCIIPixelComponent*&& + Position&&
@@ -71,12 +71,13 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,ASCIIPixelComponent*&& input, Position&& position)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
+    : pixels(), Enabled(true), ASCIIPixelComponentOwned(true)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = mem->template emplace<ASCIIPixelComponent>(std::move(input[i]));
     }
-    this->pos = mem->template emplace<Position>(std::forward<Position>(position));
+
+    Component<Position>::template setChild<Position>(mem->template emplace<Position>(std::forward<Position>(position)), true); 
 }
 
 // ASCIIPixelComponent*** + Position** (position ya creado en Memory)
@@ -84,11 +85,13 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* /*mem*/,ASCIIPixelComponent*** input, Position** position)
-    : pixels(), Enabled(true), pos(position), PositionOwned(false), ASCIIPixelComponentOwned(false)
+    : pixels(), Enabled(true), ASCIIPixelComponentOwned(false)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = input[i];
     }
+
+    Component<Position>::template setChild<Position>(position, false); 
 }
 
 // chars + colors + x,y -> emplace pixels y emplace Position(x,y)
@@ -96,12 +99,13 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width,height,Position>::SpriteComponent(Memory* mem,unsigned char* chars,ASCIIPixelComponent::ColorBG* cbg, ASCIIPixelComponent::ColorFG* fbg, std::size_t x, std::size_t y)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
+    : pixels(), Enabled(true), ASCIIPixelComponentOwned(true)
 {
     for (std::size_t i = 0; i < width * height; ++i) {
         pixels[i] = mem->template emplace<ASCIIPixelComponent>(chars[i], cbg[i], fbg[i]);
     }
-    this->pos = mem->template emplace<Position>(x, y);
+    
+    Component<Position>::template setChild<Position>(mem->template emplace<Position>(x, y), true);
 }
 
 // initializer_list + x,y
@@ -109,7 +113,7 @@ template<std::size_t width, std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 SpriteComponent<width, height,Position>::SpriteComponent(Memory* mem,std::initializer_list<unsigned char>&& chars_list,std::initializer_list<ASCIIPixelComponent::ColorBG>&& cbg_list, std::initializer_list<ASCIIPixelComponent::ColorFG>&& fbg_list, std::size_t x, std::size_t y)
-    : pixels(), Enabled(true), pos(nullptr), PositionOwned(true), ASCIIPixelComponentOwned(true)
+    : pixels(), Enabled(true), ASCIIPixelComponentOwned(true)
 {
     auto it_char = chars_list.begin();
     auto it_cbg  = cbg_list.begin();
@@ -127,7 +131,7 @@ SpriteComponent<width, height,Position>::SpriteComponent(Memory* mem,std::initia
     }
     for (; pixel_index < width*height; ++pixel_index) pixels[pixel_index] = nullptr;
 
-    this->pos = mem->template emplace<Position>(x, y);
+    Component<Position>::template setChild<Position>(mem->template emplace<Position>(x, y), true);
 }
 
 
@@ -138,6 +142,8 @@ template<typename Memory>
 requires MemoryType<Memory, ASCIIPixelComponent>
 void SpriteComponent<width,height,Position>::destroy(Memory* mem)
 {
+    Component<Position>::template destroy(mem); // destruir componentes hijos (Position)
+
     if(this->ASCIIPixelComponentOwned){
         for (std::size_t i = 0; i < width * height; ++i) {
 
@@ -151,19 +157,6 @@ void SpriteComponent<width,height,Position>::destroy(Memory* mem)
             mem->remove(comp);
             pixels[i] = nullptr;
         }
-    }
-
-    // manejar el componente pos (Position**)
-    if (this->pos && this->PositionOwned) {
-
-        Position** p = this->pos;
-        if (*p) {
-            if constexpr (MemoryDestruible<Position, Memory, Position>) {
-                call_component_destroy<Position, Memory>(*p, mem);
-            }
-            mem->remove(p);
-        }
-        this->pos = nullptr;
     }
 }
 
@@ -203,14 +196,12 @@ template<std::size_t width,std::size_t height,Positionable Position>
 template<typename Memory>
 requires MemoryType<Memory, Position>
 void SpriteComponent<width,height,Position>::setPosition(Memory* mem, Position&& position){
-    this->pos = mem->template emplace<Position>(std::forward<Position>(position));
-    this->PositionOwned = true;
+    Component<Position>::template setChild<Position>(mem->template emplace<Position>(std::forward<Position>(position)), true);
 }
 
 template<std::size_t width,std::size_t height,Positionable Position>
 void SpriteComponent<width,height,Position>::setPosition(Position** position){
-    this->pos = position;
-    this->PositionOwned = false;
+    Component<Position>::template setChild<Position>(position, false);
 }
 
 

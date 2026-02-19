@@ -1,6 +1,6 @@
 #pragma once
 #ifdef _WIN32
-    #define FORCEINLINE __forceinline
+    #define FORCEINLINE inline
 #else
     #define FORCEINLINE inline __attribute__((always_inline))
 #endif
@@ -39,6 +39,16 @@ requires MemoryDestruible<C, M, C>
 static void call_component_destroy(C* c, M* mem) {
     c->destroy(mem);
 }
+
+template<typename T,typename U, typename... Args>
+concept hasParent = requires(T a, Args&&... args) {
+    { a.template getParent<U>(std::forward<Args>(args)...) } -> std::convertible_to<U**>;
+};
+
+template<typename T,typename U, typename... Args>
+concept hasChild = requires(T a, Args&&... args) {
+    { a.template getChild<U>(std::forward<Args>(args)...) } -> std::convertible_to<U**>;
+};
 
 }
 

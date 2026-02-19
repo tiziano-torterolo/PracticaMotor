@@ -44,7 +44,6 @@ public:
     template<typename... Cs, typename... Args>
     auto createEntity(Args&&... args) ;
     
-
     template<typename T, typename... Args>
     auto emplace(Args&&... args) ;
 
@@ -72,10 +71,6 @@ public:
 
     template<typename T,typename Preadicate>
     void forEach(Preadicate&);
-
-
-
-
 };
     
 }

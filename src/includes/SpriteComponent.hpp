@@ -3,21 +3,22 @@
 #include <type_traits>
 #include "Macros.hpp"
 #include "ASCIIPixelComponent.hpp"
+#include "Component.hpp"
 #include <concepts>
 #include <utility>   // std::move
 #include <algorithm> // std::transform
 namespace Engine{
 
 template<std::size_t width,std::size_t height,Positionable Position>
-class SpriteComponent{
+class SpriteComponent : public Component<Position>
+{
 
 private:
     std::array<ASCIIPixelComponent**, width*height> pixels;
+    bool ASCIIPixelComponentOwned;
     bool Enabled;
     std::size_t Mask;
-    Position** pos;
-    bool PositionOwned;
-    bool ASCIIPixelComponentOwned;
+
 public:
 
     
@@ -92,6 +93,7 @@ public:
 
     // Set position to an existing Position** (SpriteComponent does NOT own the Position)
     void setPosition(Position** position);
+
 
 public:
 

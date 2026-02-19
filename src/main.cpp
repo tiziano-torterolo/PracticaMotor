@@ -5,6 +5,8 @@
 #include "./SpriteAnimationComponent.hpp"
 #include "./Map1.hpp"
 #include "./GraphicSystem.hpp"
+#include "./Component.hpp"
+#include "./Component.cpp"
 #include "./SlotMap.cpp"
 #include "./BackgroundComponent.cpp"
 #include "./SpriteComponent.cpp"
@@ -32,7 +34,7 @@ public:
 };
 
 int main() {
-    // // g++ -std=c++23 -I ./src/includes src/SlotMap.cpp src/PrintableComponent.cpp src/Memory.cpp src/Entity.cpp src/main.cpp src/BackgroundComponent.cpp src/ASCIIPixelComponent.cpp src/SpriteAnimationComponent.cpp src/SpriteComponent.cpp -o main
+    // // g++ -std=c++23 -I ./src/includes src/SlotMap.cpp src/PrintableComponent.cpp src/Memory.cpp src/Entity.cpp src/main.cpp src/BackgroundComponent.cpp src/ASCIIPixelComponent.cpp src/SpriteAnimationComponent.cpp src/SpriteComponent.cpp src/Component.cpp -o main
     // 192x36
     // VM 1234 
     
