@@ -48,9 +48,6 @@ requires MemoryType<Memory, T>
 FORCEINLINE void Component<Comps...>::destroyComponent(Memory *mem){
     auto& Node = std::get<Component<Comps...>::ComponentNode<T>>(children);
     if (Node.active && Node.ptr) {
-        if (Node.owned) {
-            call_component_destroy<T, Memory>(*Node.ptr, mem);
-        }
         mem->remove(Node.ptr);
         Node.ptr = nullptr;
         Node.active = false;

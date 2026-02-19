@@ -80,7 +80,9 @@ int main() {
         std::move(tmp2)
     ));
 
-
+    mem.remove(sprite);
+    mem.remove(bg);
+    mem.remove(bg2);
         
     return 0;    
     std::cout << "\033[2J";        // Limpia la pantalla

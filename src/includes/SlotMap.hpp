@@ -60,7 +60,7 @@ public:
     template<typename Preadicate>
     void removeIf(Preadicate&& );
 
-    void remove(T**);
+    FORCEINLINE void remove(T**);
     
     FORCEINLINE void remove(T*);
     

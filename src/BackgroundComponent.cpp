@@ -76,12 +76,7 @@ void BackgroundComponent<width,height>::destroy(Memory* mem)
         for (std::size_t i = 0; i < width * height; ++i) {
             ASCIIPixelComponent** comp = pixels[i];
             if (!comp) continue;
-
-            // Si ASCIIPixelComponent define destroy(Memory*), lo invocamos
-            if constexpr (MemoryDestruible<ASCIIPixelComponent, Memory, ASCIIPixelComponent>) {
-                call_component_destroy<ASCIIPixelComponent, Memory>(*comp, mem);
-            }
-
+            
             // Pedimos a Memory que remueva la entrada (comp es T** según convención)
             mem->remove(comp);
 

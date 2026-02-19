@@ -150,10 +150,6 @@ void SpriteComponent<width,height,Position>::destroy(Memory* mem)
             ASCIIPixelComponent** comp = pixels[i];
             if (!comp) continue;
 
-            if constexpr (MemoryDestruible<ASCIIPixelComponent, Memory, ASCIIPixelComponent>) {
-                call_component_destroy<ASCIIPixelComponent, Memory>(*comp, mem);
-            }
-
             mem->remove(comp);
             pixels[i] = nullptr;
         }

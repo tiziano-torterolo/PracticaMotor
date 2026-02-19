@@ -112,7 +112,21 @@ inline auto Memory<Components...>::end() {
 
 template<typename... Components>
 template<typename T>
-void Memory<Components...>::remove(T& t){}
+void Memory<Components...>::remove(T& t){
+    if constexpr (MemoryDestruible<T, Memory, T>) {
+        call_component_destroy<T, Memory>(t, this);
+    }
+    getPool<T>().remove(&t);
+}
+
+template<typename... Components>
+template<typename T>
+void Memory<Components...>::remove(T** t){
+    if constexpr (MemoryDestruible<T, Memory, T>) {
+        call_component_destroy<T, Memory>(*t, this);
+    }
+    getPool<T>().remove(t);
+}
 
 template<typename... Components>
 template<typename T>

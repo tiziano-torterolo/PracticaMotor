@@ -149,7 +149,7 @@ void SlotMap<T>::removeIf(Preadicate&& pred){
 }
 
 template<typename T>
-void SlotMap<T>::remove(T** elementRef){
+FORCEINLINE void SlotMap<T>::remove(T** elementRef){
     auto LastInRefsArray = getLastRef();
     if(*LastInRefsArray == *elementRef){
         removeLast(elementRef);
