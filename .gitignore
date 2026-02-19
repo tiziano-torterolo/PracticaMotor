@@ -1,3 +1,7 @@
 /.vscode
 main.exe
 main.exe
+*.exe
+Competencia.cpp
+Competencia2.cpp
+helloworld.py
