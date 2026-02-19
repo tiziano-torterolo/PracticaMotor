@@ -170,7 +170,6 @@ void SlotMap<T>::remove(T* element){
 
 template<typename T>
 void SlotMap<T>::removeByIndex(std::size_t index){
-    std::cout <<index ;
     if (index>=freeIndexStorage){
         throw std::runtime_error("SlotMapError: index>freeIndexStorage");
         return;//aca no se si deberia ser > o >=
