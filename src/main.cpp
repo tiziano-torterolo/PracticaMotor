@@ -79,48 +79,6 @@ int main() {
         &mem,
         std::move(tmp2)
     ));
-    std::string text = "->"; int i=0;
-    std::for_each((*bg)->begin(),(*bg)->end(),[&]( auto n) {
-            text+=(*n)->str(); 
-            i++;
-            if(i==100){
-                std::cout<<text<<std::endl;
-                text = "->";
-                i=0;
-            }
-        });
-
-    text ="";
-    std::for_each((*bg2)->begin(),(*bg2)->end(),[&]( auto n) {
-            text+=(*n)->str(); 
-            i++;
-            if(i==192){
-                text+='\n';
-                i=0;
-            }
-        });
-    #ifdef _WIN32 // For Windows
-        system("cls");
-    #else // For Unix-like systems
-        system("clear");
-    #endif
-    for (size_t i = 0; i < 200; i++)
-    {
-        std::cout<<text<<std::endl;
-        std::cout << "\033[H";        // Limpia la pantalla
-    }
-        
-    std::cout<<text<<std::endl;
-    std::for_each((*sprite)->begin(),(*sprite)->end(),[&]( auto n) {
-            text+=(*n)->str(); 
-            i++;
-            if(i==3){
-                std::cout<<text<<std::endl;
-                text = "->";
-                i=0;
-            }
-        });
-
 
 
 
