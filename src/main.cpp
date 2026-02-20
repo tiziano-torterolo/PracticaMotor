@@ -49,7 +49,7 @@ int main() {
     >(10,10,10,10,10,192*36*4);
 
 
-    for (size_t i = 0; i < 300; i++)
+    for (size_t i = 0; i < 30; i++)
     {
         std::cout << " -> " << i << std::endl;
 

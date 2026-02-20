@@ -24,6 +24,8 @@ public:
     SlotMap& operator=(SlotMap&& other) noexcept = default; // Asignación movimiento
 private:
 
+    unsigned char* buffer;
+
     std::size_t freeIndexStorage;
     T* comps;
 

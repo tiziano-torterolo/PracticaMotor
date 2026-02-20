@@ -7,9 +7,12 @@ namespace Engine{
 template<typename T>
 SlotMap<T>::SlotMap(std::size_t n){
     std::cout<<"SlotMap: Construyendo nuevo <"<< typeid(T).name() <<"> size = "<<n<<std::endl;
-    comps = new T[n];
-    refs = new T*[n];
-    nextfree = new std::size_t[n] ;
+
+    buffer = new unsigned char[ sizeof(T)*n + sizeof(T*)*n + sizeof(std::size_t)*n ];
+
+    comps =  new (buffer) T[n];
+    refs = new (buffer + sizeof(T)*n) T*[n];
+    nextfree = new (buffer + sizeof(T)*n + sizeof(T*)*n) std::size_t[n] ;
     
     freeIndexStorage = 0;
     freeIndexRefs = 0;
@@ -26,18 +29,20 @@ SlotMap<T>::SlotMap(std::size_t n){
 template<typename T>
 SlotMap<T>::~SlotMap(){
     std::cout<<"SlotMap: Destruyendo <"<< typeid(T).name() <<std::endl;
-    delete[] comps;
-    delete[] refs;
-    delete[] nextfree;
+    for (size_t i = 0; i < capacity; i++){
+        comps[i].~T();
+    }
+    delete[] buffer;
 }
 
 template<typename T>
 SlotMap<T>::SlotMap(const SlotMap& other) {
     std::cout<<"SlotMap: EL CONSTRUCTOR DE COPIA NO ESTA IMPLEMENTADO xD <"<< typeid(T).name() <<std::endl;
 
-    comps = new T[other.capacity];
-    refs = new T*[other.capacity];
-    nextfree = new std::size_t[other.capacity] ;
+    buffer = new unsigned char[ sizeof(T)*other.capacity + sizeof(T*)*other.capacity + sizeof(std::size_t)*other.capacity ];
+    comps = new (buffer) T[other.capacity];
+    refs = new (buffer + sizeof(T)*other.capacity) T*[other.capacity];
+    nextfree = new (buffer + sizeof(T)*other.capacity + sizeof(T*)*other.capacity) std::size_t[other.capacity] ;
 
 } // Constructor de copia
 
@@ -150,7 +155,7 @@ void SlotMap<T>::removeIf(Preadicate&& pred){
 
 template<typename T>
 FORCEINLINE void SlotMap<T>::remove(T** elementRef){
-    auto LastInRefsArray = getLastRef();
+    auto LastInRefsArray =  getLastRef();
     if(*LastInRefsArray == *elementRef){
         removeLast(elementRef);
         return;
