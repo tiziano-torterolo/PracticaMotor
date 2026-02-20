@@ -6,13 +6,12 @@ namespace Engine{
 
 template<typename T>
 SlotMap<T>::SlotMap(std::size_t n){
-    std::cout<<"SlotMap: Construyendo nuevo <"<< typeid(T).name() <<"> size = "<<n<<std::endl;
+    buffer = new unsigned char[ sizeof(T)*n + sizeof(T**)*n + sizeof(T*)*n + sizeof(std::size_t)*n ];
 
-    buffer = new unsigned char[ sizeof(T)*n + sizeof(T*)*n + sizeof(std::size_t)*n ];
-
-    comps =  new (buffer) T[n];
-    refs = new (buffer + sizeof(T)*n) T*[n];
-    nextfree = new (buffer + sizeof(T)*n + sizeof(T*)*n) std::size_t[n] ;
+    comps.object =  new (buffer) T[n];
+    comps.ref = new (buffer + sizeof(T)*n) T**[n];
+    refs = new (buffer + sizeof(T)*n + sizeof(T**)*n) T*[n];
+    nextfree = new (buffer + sizeof(T)*n + sizeof(T**)*n + sizeof(T*)*n) std::size_t[n] ;
     
     freeIndexStorage = 0;
     freeIndexRefs = 0;
@@ -28,9 +27,8 @@ SlotMap<T>::SlotMap(std::size_t n){
 
 template<typename T>
 SlotMap<T>::~SlotMap(){
-    std::cout<<"SlotMap: Destruyendo <"<< typeid(T).name() <<std::endl;
     for (size_t i = 0; i < capacity; i++){
-        comps[i].~T();
+        comps.object[i].~T();
     }
     delete[] buffer;
 }
@@ -39,10 +37,11 @@ template<typename T>
 SlotMap<T>::SlotMap(const SlotMap& other) {
     std::cout<<"SlotMap: EL CONSTRUCTOR DE COPIA NO ESTA IMPLEMENTADO xD <"<< typeid(T).name() <<std::endl;
 
-    buffer = new unsigned char[ sizeof(T)*other.capacity + sizeof(T*)*other.capacity + sizeof(std::size_t)*other.capacity ];
-    comps = new (buffer) T[other.capacity];
-    refs = new (buffer + sizeof(T)*other.capacity) T*[other.capacity];
-    nextfree = new (buffer + sizeof(T)*other.capacity + sizeof(T*)*other.capacity) std::size_t[other.capacity] ;
+    buffer = new unsigned char[ sizeof(T)*other.capacity + sizeof(T**)*other.capacity + sizeof(T*)*other.capacity + sizeof(std::size_t)*other.capacity ];
+    comps.object = new (buffer) T[other.capacity];
+    comps.ref = new (buffer + sizeof(T)*other.capacity) T**[other.capacity];
+    refs = new (buffer + sizeof(T)*other.capacity + sizeof(T**)*other.capacity) T*[other.capacity];
+    nextfree = new (buffer + sizeof(T)*other.capacity + sizeof(T**)*other.capacity + sizeof(T*)*other.capacity) std::size_t[other.capacity] ;
 
 } // Constructor de copia
 
@@ -116,8 +115,9 @@ T** SlotMap<T>::create(Component&& args){
 template<typename T>
 template< typename... Args>
 inline void SlotMap<T>::emplace_back(Args&&... args){
-    comps[freeIndexStorage] = T(std::forward<Args>(args)...);
-    refs[freeIndexRefs] = &comps[freeIndexStorage];    
+    comps.object[freeIndexStorage] = T(std::forward<Args>(args)...);
+    refs[freeIndexRefs] = &comps.object[freeIndexStorage];
+    comps.ref[freeIndexStorage] = &refs[freeIndexRefs];
     freeIndexStorage++;
     lastAddedRef = freeIndexRefs;
     freeIndexRefs = nextfree[freeIndexRefs];
@@ -126,8 +126,9 @@ inline void SlotMap<T>::emplace_back(Args&&... args){
 template<typename T>
 template<typename Component>
 inline void SlotMap<T>::push_back(Component&& args){
-    comps[freeIndexStorage] = args ;
-    refs[freeIndexRefs] = &comps[freeIndexStorage];    
+    comps.object[freeIndexStorage] = args ;
+    refs[freeIndexRefs] = &comps.object[freeIndexStorage];    
+    comps.ref[freeIndexStorage] = &refs[freeIndexRefs];
     freeIndexStorage++;
     lastAddedRef = freeIndexRefs;
     freeIndexRefs = nextfree[freeIndexRefs];
@@ -135,12 +136,12 @@ inline void SlotMap<T>::push_back(Component&& args){
 
 template<typename T>
 inline auto SlotMap<T>::begin(){
-    return comps;
+    return comps.object;
 }
 
 template<typename T>
 inline auto SlotMap<T>::end(){
-    return comps + freeIndexStorage;
+    return comps.object + freeIndexStorage;
 }
 
 template<typename T>
@@ -155,12 +156,12 @@ void SlotMap<T>::removeIf(Preadicate&& pred){
 
 template<typename T>
 FORCEINLINE void SlotMap<T>::remove(T** elementRef){
-    auto LastInRefsArray =  getLastRef();
-    if(*LastInRefsArray == *elementRef){
+    auto lastInRefsArray =  getLastRef();
+    if(*lastInRefsArray == *elementRef){
         removeLast(elementRef);
         return;
     }
-    removeByIndex( elementRef - (refs) );
+    removeByIndex( elementRef - refs);
 }
 
 template<typename T>
@@ -173,9 +174,13 @@ void SlotMap<T>::remove(T* element){
     remove( getRefFromStore(element) ); // yo se que no es lo mas optimo pero tampoco esta mal
 }
 
+
+
 template<typename T>
 void SlotMap<T>::removeByIndex(std::size_t index){
-    if (index>=freeIndexStorage){
+
+    if ((refs[index]-comps.object)>=freeIndexStorage){
+        std::cout<<"index: "<<index<<" freeIndexStorage: "<<freeIndexStorage<<" capacity: "<<capacity<< " in type "<<typeid(T).name()<<std::endl;
         throw std::runtime_error("SlotMapError: index>freeIndexStorage");
         return;//aca no se si deberia ser > o >=
     }
@@ -191,21 +196,26 @@ void SlotMap<T>::removeByIndex(std::size_t index){
         return;
     }
 
-    auto LastInRefsArray = getLastRef();
-    auto IndexOfLastInRefsArray = LastInRefsArray - refs;
+    auto lastInRefsArray = getLastRef();
+    auto indexOfLastInRefsArray = lastInRefsArray - refs;
 
-    if(LastInRefsArray == nullptr){
+    if(lastInRefsArray == nullptr){
         throw std::runtime_error("SlotMapError: getLastRef() == nullptr");
         return;
     }
-    if(*LastInRefsArray == refs[index]){
+    if(*lastInRefsArray == refs[index]){
         removeLast(&refs[index]);
         return;
     }
 
     
-    std::swap(*LastInRefsArray,refs[index]);
-    std::swap(*(*LastInRefsArray),*refs[index]);
+    //Swap object to be removed with last object , Swap the pointer in refs array that points to the object to be removed with the pointer that points to the last object, Swap the pointer in comps.ref array that points to the object to be removed with the pointer that points to the last object
+    std::swap(*refs[index], comps.object[freeIndexStorage-1]);
+    std::swap(refs[index], refs[indexOfLastInRefsArray]);
+    std::swap(comps.ref[refs[index]-comps.object], comps.ref[freeIndexStorage-1]);
+
+
+    comps.object[freeIndexStorage-1].~T();
 
     freeIndexStorage--;
 
@@ -229,19 +239,19 @@ void SlotMap<T>::removeLast(T** LastRef){
 /// @return 
 template<typename T>
 FORCEINLINE T   SlotMap<T>::getLast(){
-    return comps[freeIndexStorage-1];
+    return comps.object[freeIndexStorage-1];
 }
 
 template<typename T>
 FORCEINLINE T*  SlotMap<T>::getLastStore(){
-    return &comps[freeIndexStorage-1];
+    return &comps.object[freeIndexStorage-1];
 }
 
 template<typename T>
 FORCEINLINE T** SlotMap<T>::getLastRef(){
 //    T* comps;
 //    T** refs;
-    return getRefFromStore(getLastStore());
+    return comps.ref[freeIndexStorage-1];
 }
 
 template<typename T>
@@ -251,7 +261,7 @@ FORCEINLINE std::size_t SlotMap<T>::getLastRefIndex  (){
 
 template<typename T>
 FORCEINLINE std::size_t SlotMap<T>::getLastSotreIndex(){
-    return ( getLastStore()-(comps) );
+    return ( getLastStore()-(comps.object) );
 }
   
 template<typename T>
@@ -265,5 +275,9 @@ FORCEINLINE T** SlotMap<T>::getRefFromStore(T* store){
     T** it = std::find_if(refs,(refs + capacity),[store](T* t){return t==store;});
     return (it != (refs + capacity)) ? it : nullptr;
 }
+
+
+
+
 
 }

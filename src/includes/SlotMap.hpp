@@ -15,6 +15,13 @@ namespace Engine{
     
 template<typename T>
 class SlotMap{
+private:
+
+    struct StorageNode{
+        T* object;
+        T*** ref;
+    };
+
 public:
     explicit SlotMap(std::size_t);
     ~SlotMap();
@@ -27,7 +34,7 @@ private:
     unsigned char* buffer;
 
     std::size_t freeIndexStorage;
-    T* comps;
+    typename SlotMap<T>::StorageNode comps;
 
     std::size_t lastAddedRef;
     std::size_t freeIndexRefs;
@@ -90,6 +97,7 @@ private:
     FORCEINLINE std::size_t getLastSotreIndex();
 
 };
-    
+
+
     
 }
