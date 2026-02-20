@@ -46,7 +46,7 @@ int main() {
     Engine::BackgroundComponent<100,30>,
     Engine::BackgroundComponent<192,36>,
     Engine::ASCIIPixelComponent
-    >(10,10,10,10,10,192*36*4);
+    >(10,10,10,10,192*36*4);
 
 
     for (size_t i = 0; i < 300; i++)
@@ -84,18 +84,6 @@ int main() {
             &mem,
             std::move(tmp2)
         ));
-        std::string text = "->";
-        int j=0;
-        std::for_each((*bg2)->begin(),(*bg2)->end(),[&]( auto n) {
-            text+=(*n)->str(); 
-            j++;
-            if(j==192){
-                std::cout<<text<<std::endl;
-                text = "->";
-                j=0;
-            }
-        });
-
 
         
 

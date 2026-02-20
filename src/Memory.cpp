@@ -7,7 +7,7 @@ namespace Engine{
 //******************************************************************************************************************************************************* */
 template <typename... Components>
 Memory<Components...>::Memory(std::size_t n)
-    : Memory(n, ((void)Components{}, n)...)  // delega al otro constructor
+    : Memory(((void)Components{}, n)...)  // delega al otro constructor
 {}
 
 template<typename... Components>
@@ -15,9 +15,8 @@ Memory<Components...>::~Memory() = default   ;
 
 template<typename... Components>
 template<typename... Sizes>
-Memory<Components...>::Memory(std::size_t entityCount, Sizes... sizes)
-    : pools(std::forward<Sizes>(sizes)...),
-      entities(entityCount)
+Memory<Components...>::Memory(Sizes... sizes)
+    : pools(std::forward<Sizes>(sizes)...)
 {
     static_assert(sizeof...(Sizes) == sizeof...(Components),
                   "Debe haber un tamaño por cada componente");
@@ -75,20 +74,6 @@ auto Memory<Components...>::emplace(Args&&... args) {
 }
 
 template<typename... Components>
-template<typename... Cs, typename... Args>
-auto Memory<Components...>::createEntity(Args&&... args) {
-    auto entityRef = entities.create();
-    auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
-
-    [&]<std::size_t... I>(std::index_sequence<I...>) {
-        ((*entityRef)->setComponent(
-            getPool<Cs>().create(std::get<I>(argsTuple))
-        ), ...);
-    }(std::index_sequence_for<Cs...>{});
-    
-}
-
-template<typename... Components>
 template<typename T>
 inline auto Memory<Components...>::begin() {
     return getPool<T>().begin();
@@ -98,16 +83,6 @@ template<typename... Components>
 template<typename T>
 inline auto Memory<Components...>::end() {
     return getPool<T>().end();
-}
-
-template<typename... Components>
-inline auto Memory<Components...>::begin() {
-    return entities.begin();
-}
-
-template<typename... Components>
-inline auto Memory<Components...>::end() {
-    return entities.end();
 }
 
 template<typename... Components>

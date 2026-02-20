@@ -15,7 +15,6 @@ class Memory {
 public:
 
     std::tuple<SlotMap<Components>...> pools;
-    SlotMap<Entity<Components...>> entities;
 
     Memory(std::size_t);
 
@@ -26,7 +25,7 @@ public:
     Memory& operator=(Memory&& other) noexcept = delete; // Asignación movimiento
    
     template<typename... Sizes>
-    Memory(std::size_t entityCount, Sizes... sizes);
+    Memory(Sizes... sizes);
 
     template<std::size_t... I, typename... Sizes>
     static auto makePools(std::index_sequence<I...>, Sizes&&... sizes);
@@ -40,9 +39,6 @@ private:
 public:
 
     constexpr inline void reserve(std::size_t n);
-
-    template<typename... Cs, typename... Args>
-    auto createEntity(Args&&... args) ;
     
     template<typename T, typename... Args>
     auto emplace(Args&&... args) ;
@@ -51,10 +47,6 @@ public:
     inline auto begin();
 
     template<typename T>
-    inline auto end();
-
-    inline auto begin();
-
     inline auto end();
 
     template<typename T>
