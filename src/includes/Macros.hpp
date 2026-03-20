@@ -50,5 +50,13 @@ concept hasChild = requires(T a, Args&&... args) {
     { a.template getChild<U>(std::forward<Args>(args)...) } -> std::convertible_to<U**>;
 };
 
+template<typename T, typename... Args>
+concept System = requires(T a, Args&&... args) {
+    { a.getPriority() } -> std::convertible_to<std::size_t>;
+    { a.start() } -> std::convertible_to<void>;
+    { a.update() } -> std::convertible_to<void>;
+    { a.end() } -> std::convertible_to<void>;
+};
+
 }
 
