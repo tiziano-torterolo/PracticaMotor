@@ -81,7 +81,8 @@ int main() {
         std::cout << it->first << "," << it->second << std::endl; // Dereferencing to read data
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
+     scp Motor.hpp Prueba.cpp PID.hpp MultipleMotorController.cpp Defines.cpp ft@192.168.1.18:workspaces/testFolder/ ; ssh ft@192.168.1.18 ; powershell.exe -c "[console]::beep(1000,500)"
+     cd workspaces/testFolder ; ls ; echo "\n comenzando compilacion \n";  g++ -std=c++17 Prueba.cpp -o prueba -lTxtControlLib -pthread -fconcepts ; rm Motor.hpp Prueba.cpp PID.hpp MultipleMotorController.cpp Defines.cpp ; ls 
 */
     stop = true;
     motor1->setPower(0);
