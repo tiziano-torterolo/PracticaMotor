@@ -15,7 +15,7 @@ class Motor {
 private:
     std::shared_ptr<Encoder> encoder;
     std::shared_ptr<Counter> counter;
-    PID pid{0.6, 0.00136, 21.25}; 
+    PID pid{3.4, 0.00236, 21.25}; 
     double speed = 0.0;
     double SP_speed = 170;
     std::deque<std::pair<uint64_t, int>> muestras;
@@ -26,6 +26,7 @@ private:
     int lastDistance = 0;
     int startDistance = 0;
     long long motorSteps = 0;
+
 public:
     //std::vector<std::pair<uint64_t, double>> muestrassyn;
     Motor(std::shared_ptr<Encoder> enc = nullptr, std::shared_ptr<Counter> cnt = nullptr) : encoder(enc), counter(cnt){   
@@ -47,7 +48,7 @@ public:
 
     inline void setSpeed(double speed) noexcept{
         SP_speed = speed;
-        this->positiveDirection = (speed>=0);
+        this->positiveDirection = (speed>=0.0);
     }
 
     inline void setPower(int power) noexcept{

@@ -14,13 +14,20 @@ using namespace std;
 int main() {
     ConnectExitSignalHandler;
     std::cout << "Comenzando programa" << endl;
-    auto txt = createTXT();
-    std::cout << "txt = " << txt<< endl;
+    TxtType txt = createTXT();
+
+    #if (EXIST_VEHICLE) 
+        std::cout << "txt = " << txt.getName() << endl;
+    #else 
+        std::cout << "txt is nullptr" << endl;
+    #endif
+
     auto M1_Encoder = createEncoder_shared_ptr(txt, 1);
     auto M1_Counter = createCounter_shared_ptr(txt, 1);
     
     auto M2_Encoder = createEncoder_shared_ptr(txt, 2);
     auto M2_Counter = createCounter_shared_ptr(txt, 2);
+
     updateTXT_config(txt);
     
     auto motor1 = std::make_shared<Proyecto::Motor<EncoderType, CounterType>>(
@@ -42,7 +49,7 @@ int main() {
 
     std::thread t( [&controller](){
         auto lastms = now_ms();
-        for (int i = 0; i < 150 && !stop; i++) {
+        for (int i = 0; i < 40*1000 && !stop; i++) {
             auto now = now_ms();
             double dt = static_cast<double>(now - lastms);
             lastms = now;
@@ -52,8 +59,22 @@ int main() {
     });
     t.detach();
     
-    controller.initMovement(100, 100, 0, 0, now_ms());
-
+    controller.initMovement(40, 100, 0, 0, now_ms());
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+    
+    controller.initMovement(70, 70, 0, 0, now_ms());
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+    
+    controller.initMovement(20, 20, 0, 0, now_ms());
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+    
+    
+    controller.initMovement(-100, -100, 0, 0, now_ms());
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    
+    
+    controller.initMovement(-150, -150, 0, 0, now_ms());
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     
     // 2. Traversal loop (using auto for cleaner code)
     /*for (auto it = motor.muestrassyn.begin(); it != motor.muestrassyn.end(); ++it) {
@@ -62,11 +83,13 @@ int main() {
     }
 
 */
+    stop = true;
     motor1->setPower(0);
     motor2->setPower(0);
 
     std::cout << "Terminando programa" << endl;
-
+    //comprueba que t siga vivo y la mata
+    
 
 
     return 0;

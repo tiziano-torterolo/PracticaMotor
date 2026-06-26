@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <math.h>
 #include "Motor.hpp"
 #include "Defines.cpp"
 #include <memory>
@@ -15,7 +16,7 @@ private:
     std::array<double, 4> speedModifers;
     long long timestampMovementInit = 0;
     const double percentageErrorMax = 0.05; // 5% error allowed
-    const double speedBoost = 0.15; // 15% speed boost allowed
+    const double speedBoost = 0.25; // 25% speed boost allowed
 
 public:
     
@@ -30,10 +31,23 @@ public:
     void initMovement(double speed_m1,double speed_m2,double speed_m3,double speed_m4, auto timestamp) noexcept {
         updateinitDistances();
         timestampMovementInit = timestamp;
-        motors[0]->setSpeed(speed_m1);
-        motors[1]->setSpeed(speed_m2);
-        motors[2]->setSpeed(speed_m3);
-        motors[3]->setSpeed(speed_m4);
+        if (motors[0]) {
+            motors[0]->setSpeed(speed_m1);
+            actualSpeeds[0] = speed_m1;
+        }
+        if (motors[1]) {
+            motors[1]->setSpeed(speed_m2);
+            actualSpeeds[1] = speed_m2;
+        }
+        if (motors[2]) {
+            motors[2]->setSpeed(speed_m3);
+            actualSpeeds[2] = speed_m3;
+        }
+        if (motors[3]) {
+            motors[3]->setSpeed(speed_m4);
+            actualSpeeds[3] = speed_m4;
+        }
+
     }
 
     void update(double dt, auto timestamp) noexcept {
@@ -68,7 +82,7 @@ private:
     inline void sendUpdateToMotors() noexcept {
         for (size_t i = 0; i < motors.size(); ++i) {
             if (motors[i]) {
-                motors[i]->setSpeed(predictedDistances[i]);
+                motors[i]->setSpeed(actualSpeeds[i] * speedModifers[i]);
             }
         }
     }
@@ -77,7 +91,7 @@ private:
         const double elapsedSeconds = (timestamp - timestampMovementInit) / 1000.0;
 
         for (std::size_t i = 0; i < predictedDistances.size(); ++i) {
-            predictedDistances[i] = static_cast<long long>(initialDistances[i] + actualSpeeds[i] * elapsedSeconds);
+            predictedDistances[i] = static_cast<long long>(initialDistances[i] + abs(actualSpeeds[i] * elapsedSeconds));
         }
     }
 
@@ -90,7 +104,7 @@ private:
             if (predictedDistances[i] == 0) {
                 continue;
             }
-
+            
             const double error =
                 static_cast<double>(
                     predictedDistances[i] - actualDistances[i]

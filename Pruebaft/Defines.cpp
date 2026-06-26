@@ -3,7 +3,7 @@
 #include <csignal>
 #include <ctime>
 #include <cstdint>
-#define EXIST_VEHICLE false
+#define EXIST_VEHICLE true
 
 #if EXIST_VEHICLE
 
@@ -11,6 +11,7 @@
 using TxtType = ft::TXT;
 using EncoderType = ft::Encoder;
 using CounterType = ft::Counter;
+
 #else
 using TxtType = std::nullptr_t;
 using EncoderType = int;
@@ -21,29 +22,29 @@ using CounterType = int;
 
 
 static inline TxtType createTXT() {
-        return TxtType{};
+        return TxtType();
 }
 
 static inline constexpr std::shared_ptr<EncoderType> createEncoder_shared_ptr(auto& txt, int id) {
-    if constexpr (EXIST_VEHICLE) {
+    #if (EXIST_VEHICLE) 
         return std::shared_ptr<EncoderType>(txt.getEncoder(id));
-    } else {
+    #else 
         return std::shared_ptr<EncoderType>(nullptr);
-    }
+    #endif
 }
 
 static inline constexpr std::shared_ptr<CounterType> createCounter_shared_ptr(auto& txt, int id) {
-    if constexpr (EXIST_VEHICLE) {
+    #if (EXIST_VEHICLE) 
         return std::shared_ptr<CounterType>(txt.getCounter(id));
-    } else {
+    #else 
         return std::shared_ptr<CounterType>(nullptr);
-    }
+    #endif
 }
 
 static inline constexpr void updateTXT_config(auto& txt) {
-    if constexpr (EXIST_VEHICLE) {
+    #if (EXIST_VEHICLE) 
         txt.update_config();
-    }
+    #endif
 }
 
 
