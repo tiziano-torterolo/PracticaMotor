@@ -7,7 +7,8 @@
 #include <cmath>
 #include <algorithm>
 #include "PID.hpp"
-#define EXIST_VEHICLE true
+#include "Defines.cpp"
+
 namespace Proyecto{
 template <typename Encoder, typename Counter>
 class Motor {
@@ -22,16 +23,20 @@ private:
 //    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     int lastCounterProbeRead = 0;
     bool positiveDirection = false;
-
+    int lastDistance = 0;
+    int startDistance = 0;
+    long long motorSteps = 0;
 public:
     //std::vector<std::pair<uint64_t, double>> muestrassyn;
     Motor(std::shared_ptr<Encoder> enc = nullptr, std::shared_ptr<Counter> cnt = nullptr) : encoder(enc), counter(cnt){   
         //muestrassyn.reserve(5000);
+        startDistance = getDistance();
     }
 
     inline double getSpeed() const noexcept {
         return speed;
     }
+
     inline int getPower() const noexcept{
         if constexpr (EXIST_VEHICLE) {
             if (!encoder) return 0;
@@ -42,20 +47,26 @@ public:
 
     inline void setSpeed(double speed) noexcept{
         SP_speed = speed;
+        this->positiveDirection = (speed>=0);
     }
 
     inline void setPower(int power) noexcept{
         if constexpr (EXIST_VEHICLE) {
         if (!encoder) return;
             encoder->startSpeed(std::clamp(power, -512, 512));
-            this->positiveDirection = (power>=0);
         }
     }
 
-    inline int getDistance() const noexcept{
+    inline long long getDistance() noexcept{
         if constexpr (EXIST_VEHICLE) {
             if (!counter) return 0;
-            return static_cast<int>(counter->getDistance());
+            auto temp = static_cast<int>(counter->getDistance());
+            if (lastDistance > 0 && temp < 0) {
+                motorSteps += lastDistance-startDistance;
+                startDistance = temp;
+                lastDistance = temp;
+            }
+            return motorSteps + (temp-startDistance);
         } 
         return -1;    
     }
@@ -81,13 +92,13 @@ private:
         if (muestras.size() > 4) {
             muestras.pop_front();
         }
-        if (distance == -1) {
+        if constexpr (!EXIST_VEHICLE) {
             muestras.emplace_back(timestamp, 10);
             return;
+        } else {
+            muestras.emplace_back(timestamp, distance==0 ? 0 : distance-lastCounterProbeRead);
+            lastCounterProbeRead = distance;  
         }
-
-        muestras.emplace_back(timestamp, distance==0 ? 0 : distance-lastCounterProbeRead);
-        lastCounterProbeRead = distance;    
     }
     void updateSpeedRead(double dt, auto timestamp) noexcept{
         CounterProbe(timestamp);
@@ -115,16 +126,12 @@ private:
         for (; next != muestras.end(); ++it, ++next) {
 
             auto duration1 = next->first - it->first;
-            // t1,c1 = actual
-            // t2,c2 = siguiente
-            
+
             if (duration1 > 0) {
                 cant++;
                 sum += static_cast<double>(cant*(next->second) / (duration1 / 1000.0));
                 cantMSE+=cant;
             }
-                
-            
         }
         speed = this->positiveDirection ? sum / cantMSE : - (sum / cantMSE);
         //muestrassyn.push_back({muestras.begin()->first,speed});
